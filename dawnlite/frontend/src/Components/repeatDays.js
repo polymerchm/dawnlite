@@ -1,19 +1,16 @@
 import { Grid, FormControlLabel, Checkbox} from '@mui/material'
 
 export const repeatDayData = [
-    {bit: 1, name: "Sun"},
-    {bit: 2, name: "Mon"},
-    {bit: 4, name: "Tue"},
-    {bit: 8, name: "Wed"},
-    {bit: 16, name: "Thu"},
-    {bit: 32, name: "Fri"},
-    {bit: 64, name: "Sat"}
+    {bit: 1, name: "SU"},
+    {bit: 2, name: "MO"},
+    {bit: 4, name: "TU"},
+    {bit: 8, name: "WE"},
+    {bit: 16, name: "TH"},
+    {bit: 32, name: "FR"},
+    {bit: 64, name: "SA"}
 ]
 
-// export const getRepeatData = (index) => {
-//     return repeatDayData[index]
 
-// }
 
 export const repeatDaysControl = (props) => {
     return (

@@ -1,0 +1,63 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+
+        {
+            "name": "Python: daemon",
+            "type": "python",
+            "request": "launch",
+            "module": "dawnlite.daemon",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: button",
+            "type": "python",
+            "request": "launch",
+            "module": "dawnlite.daemons.button",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: remoteControl",
+            "type": "python",
+            "request": "launch",
+            "module": "dawnlite.daemons.remoteControl",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: statusLED",
+            "type": "python",
+            "request": "launch",
+            "module": "dawnlite.daemons.statusLED",
+            "justMyCode": true
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/frontend/src"
+        },
+        {
+            "name": "Python: Dawnlight",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/venv/bin/gunicorn",
+            "gevent": true,
+            "args": [
+                "dawnlite:app",
+                "--bind=0.0.0.0:5000",
+                "--reload",
+                "--worker-class",
+                "eventlet",
+                "-w",
+                "1",
+                "--timeout=7200"
+            ],
+            // "postDebugTask": "killdebugger"
+        }
+    ]
+}

@@ -25,16 +25,12 @@ import { repeatDayData } from './repeatDays'
 import { defaultAlarm } from './getAlarms'
 import { uuid } from '../uuid'
 import WeekDayWeekEnd from './WeekDayWeekEnd';
-import { ACTIONS } from '../App'
-
-
 
 const AlarmListItem = ({ isList,
     updateAlarmList,
     setCreateNewAlarmFlag,
     addAlarm,
     alarmListItem,
-    setBusy
     }) => {
     const [workingAlarm, setWorkingAlarm] = useState(alarmListItem)
     const [modify, setModify] = useState(false)
@@ -52,9 +48,7 @@ const AlarmListItem = ({ isList,
         setWorkingAlarm({ ...workingAlarm, repeatDays: workingAlarm.repeatDays ^ bit })
     }
 
-
     const onTimeChanged = (value) => {
-        console.log('thiem changed')
         setIsDirty(true)
         setWorkingAlarm({ ...workingAlarm, time: value.format('HH:mm') })
     }
@@ -66,7 +60,7 @@ const AlarmListItem = ({ isList,
 
     const onIntensityChange = (e) => {
         setIsDirty(true)
-        setWorkingAlarm({ ...workingAlarm, intensity: e.target.value })
+        setWorkingAlarm({ ...workingAlarm, level: e.target.value })
     }
 
     const onEnabledChange = (e) => {
@@ -110,8 +104,6 @@ const AlarmListItem = ({ isList,
         setModify(e.target.checked)
     }
 
-
-
     const EditableListItem = () => {
         if (!isList || (isList && modify)) {
         return (
@@ -129,12 +121,6 @@ const AlarmListItem = ({ isList,
                             onChange={onTimeChanged}
                             allowEmpty={false}
                             focusOnOpen={true}
-                            onOpen={()=> {
-                                console.log('on open')
-                                setBusy(true)
-                            }}
-   
-                            
                         />
                     </Grid>
                     <Grid item xs={5} />
@@ -181,7 +167,7 @@ const AlarmListItem = ({ isList,
                         <InputLabel >Intensity</InputLabel>
                         <Select
                             id="intensitySelect"
-                            value={workingAlarm.intensity || 100}
+                            value={workingAlarm.level || 100}
                             onChange={onIntensityChange}
                             disabled={isList && !modify}
                         >
@@ -200,8 +186,7 @@ const AlarmListItem = ({ isList,
                             label="Enabled"
                             labelPlacement="start"
                             checked={workingAlarm.enabled || false}
-                            onChange={onEnabledChange}
-                            
+                            onChange={onEnabledChange}    
                         />
                         </Box>
                 </Grid>
@@ -210,7 +195,6 @@ const AlarmListItem = ({ isList,
         } else {
             return null
         }
-        
     }
 
 
@@ -316,7 +300,9 @@ const AlarmListItem = ({ isList,
                     changeRepeatDay(bit)
                 } />)
     }
-        return (
+    
+    
+    return (
         <Card sx={{ margin: 'auto' , mt: 0}}>
             <CardContent>
                 {isList &&
@@ -340,4 +326,5 @@ const AlarmListItem = ({ isList,
 
 }
 
-export default AlarmListItem
+
+export default React.memo(AlarmListItem)

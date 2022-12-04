@@ -1,12 +1,12 @@
 import {
     List, ListItem,
 } from '@mui/material'
-
+import React from 'react'
 import AlarmListItem from './AlarmListItem'
 
 
 
-const AlarmList = ({alarmList, setBusy, updateAlarmList}) => {
+const AlarmList = ({alarmList, updateAlarmList}) => {
         return(  alarmList.length === 0 ? null : 
             <List>
                 {
@@ -17,7 +17,6 @@ const AlarmList = ({alarmList, setBusy, updateAlarmList}) => {
                                 isList={true}
                                 alarmListItem={entry}
                                 updateAlarmList={updateAlarmList}
-                                setBusy={setBusy}
                             />
                         </ListItem>
                     ))
@@ -26,4 +25,4 @@ const AlarmList = ({alarmList, setBusy, updateAlarmList}) => {
         )
 }
 
-export default AlarmList
+export default React.memo(AlarmList)

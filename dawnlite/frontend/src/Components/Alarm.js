@@ -8,6 +8,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { ACTIONS } from '../App'
+import React from 'react'
 
  
 
@@ -58,11 +59,11 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
     
  
     useEffect(() => {
-        const timer = setInterval(() => {
-          if (busy) return
+        const timer = setInterval(() => 
+
           onSync()
           
-        }, 10000)
+        , 10000)
         return () => clearInterval(timer)
     }, [])
 
@@ -126,7 +127,7 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
             
          
             {listLoading ? <h4>Alarms Loading.....</h4> :
-            <AlarmList alarmList={alarmList} updateAlarmList={updateAlarmList} setBusy={setBusy}/> }
+            <AlarmList alarmList={alarmList} updateAlarmList={updateAlarmList}/> }
 
             <InvalidAlarmEntry open={invalidEntryOpen} setOpen={setInvalidEntryOpen} />
             <h1>  </h1>
@@ -136,4 +137,4 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
     )
 }
 
-export default Alarm
+export default React.memo(Alarm)

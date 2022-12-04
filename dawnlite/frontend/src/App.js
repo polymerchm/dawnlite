@@ -128,12 +128,12 @@ function App() {
     return $axios.get('/api/alarm', {timeout: 2000})
   }
 
-  const asyncDispatchNextAlarm = () => {
+  const asyncDispatchNextAlarm = useCallback(() => {
     //setTimeout(()=>{}, 3000)
     retrieveNextAlarm().then(response => {
       dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: response.data.alarm})
     })
-  }
+  },[])
 
   const retrieveNextAlarm = () => { // returns a promise   
     return $axios.get('/api/nextAlarm')
@@ -166,7 +166,6 @@ function App() {
     async function getLightInfo() {
       try {
         let response = await $axios.get('/api/light')
-        console.log(`level is ${response.data['level']}`)
         dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: response.data['level'] || 100})
       }
       catch (err) {

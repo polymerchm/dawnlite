@@ -34,7 +34,6 @@ const AlarmListItem = ({ isList,
     setCreateNewAlarmFlag,
     addAlarm,
     alarmListItem,
-    setBusy
     }) => {
     const [workingAlarm, setWorkingAlarm] = useState(alarmListItem)
     const [modify, setModify] = useState(false)
@@ -54,7 +53,6 @@ const AlarmListItem = ({ isList,
 
 
     const onTimeChanged = (value) => {
-        console.log('thiem changed')
         setIsDirty(true)
         setWorkingAlarm({ ...workingAlarm, time: value.format('HH:mm') })
     }
@@ -66,7 +64,7 @@ const AlarmListItem = ({ isList,
 
     const onIntensityChange = (e) => {
         setIsDirty(true)
-        setWorkingAlarm({ ...workingAlarm, intensity: e.target.value })
+        setWorkingAlarm({ ...workingAlarm, level: e.target.value })
     }
 
     const onEnabledChange = (e) => {
@@ -128,13 +126,7 @@ const AlarmListItem = ({ isList,
                             value={getTimeValue()}
                             onChange={onTimeChanged}
                             allowEmpty={false}
-                            focusOnOpen={true}
-                            onOpen={()=> {
-                                console.log('on open')
-                                setBusy(true)
-                            }}
-   
-                            
+                            focusOnOpen={true}                     
                         />
                     </Grid>
                     <Grid item xs={5} />
@@ -316,28 +308,27 @@ const AlarmListItem = ({ isList,
                     changeRepeatDay(bit)
                 } />)
     }
-        return (
-        <Card sx={{ margin: 'auto' , mt: 0}}>
-            <CardContent>
-                {isList &&
-                    <FormGroup>
-                        <FormControlLabel
-                            labelPlacement='start'
-                            control={<Switch
-                                checked={modify}
-                                onChange={onEditChange} />}
-                            label="Edit" />
-                    </FormGroup>
-                }
-                <EditableListItem />
-                <DisplayableListItem />
-            </CardContent>
-            <CardActions>
-                <ListItemButtons />
-            </CardActions>
-        </Card>
-    )
 
+    return (
+    <Card sx={{ margin: 'auto' , mt: 0}}>
+        <CardContent>
+            {isList &&
+                <FormGroup>
+                    <FormControlLabel
+                        labelPlacement='start'
+                        control={<Switch
+                            checked={modify}
+                            onChange={onEditChange} />}
+                        label="Edit" />
+                </FormGroup>
+            }
+            <EditableListItem />
+            <DisplayableListItem />
+        </CardContent>
+        <CardActions>
+            <ListItemButtons />
+        </CardActions>
+    </Card>)
 }
 
-export default AlarmListItem
+export default React.memo(AlarmListItem)

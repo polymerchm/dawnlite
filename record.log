@@ -8301,3 +8301,7 @@ DEBUG      2022-12-08 12:32:40,855 __init__            -get_alarms           Ent
 DEBUG      2022-12-08 12:33:32,135 __init__            -get_alarms           Entering alarm GET
 DEBUG      2022-12-08 12:41:29,235 __init__            -get_alarms           Entering alarm GET
 DEBUG      2022-12-08 12:43:06,361 __init__            -get_alarms           Entering alarm GET
+DEBUG      2022-12-08 13:21:58,765 __init__            -delete_alarm         method DELETE
+DEBUG      2022-12-08 13:21:58,765 __init__            -delete_alarm         deleting record a496cd02-cab1-453d-8b18-20d04aa8b610
+DEBUG      2022-12-08 13:22:32,383 model               -update_from_dict     the data to update with is {'alarmDuration': 30, 'enabled': True, 'id': 'e6e9d70b-3bf2-4f22-b620-91829b332b4c', 'level': 50, 'nextAlarm': '2022-12-09T09:46:00', 'rampDuration': 3, 'repeatDays': 65, 'time': '09:46'}
+DEBUG      2022-12-08 13:22:32,385 __init__            -update_alarm         updating alarm <Alarm(id='e6e9d70b-3bf2-4f22-b620-91829b332b4c',time='09:46',enabled=True,repeat_days='Su__________Sa',alarmDuration=30,rampDuration=3,level=50,next_alarm=datetime.datetime(2022, 12, 11, 9, 46))>

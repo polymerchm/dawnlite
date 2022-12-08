@@ -4,7 +4,7 @@ const LightSlider = () => {
 
     return (
         <div><h1>LightSlider</h1>
-        <Slider />
+             <Slider />
         </div>
         
     )

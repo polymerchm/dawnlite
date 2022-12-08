@@ -5,17 +5,17 @@ import Header from './Components/Header'
 import Light from './Components/Light'
 import Alarm from './Components/Alarm'
 import Footer from './Components/Footer'
-// import useDimensions from 'react-use-dimensions'
 import axios from 'axios'
 
-// eslint-disable-next-line
-import { Routes, Route, Link, BrowserRouter}  from "react-router-dom";
+import {  Routes, 
+          Route, 
+          BrowserRouter}  from "react-router-dom";
 import { Stack, 
 } from '@mui/material'
 
 
 import {useEffect, useReducer, createContext, useState, useCallback} from 'react'
-// import { fromDataBase  } from './Components/getAlarms'
+
 
 // GLOBAL CONSTANTS
 export const $axios = axios.create({

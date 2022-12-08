@@ -1,8 +1,3 @@
-// import React from 'react'
-// import momemt from 'moment'
-// import { uuid } from '../uuid'
-
-
 
 export const defaultAlarm = () => {
     return {time: '08:00', 

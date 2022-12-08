@@ -1,4 +1,7 @@
-import { Grid, FormControlLabel, Checkbox} from '@mui/material'
+import {    Grid, 
+            FormControlLabel, 
+            Checkbox
+        } from '@mui/material'
 
 export const repeatDayData = [
     {bit: 1, name: "SU"},

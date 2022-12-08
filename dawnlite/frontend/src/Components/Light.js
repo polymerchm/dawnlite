@@ -1,4 +1,8 @@
-import { IconButton, Stack,  Slider, Box} from '@mui/material'
+import {  IconButton, 
+          Stack,  
+          Slider,
+          Box
+        } from '@mui/material'
 import LightbulbOff from '@mui/icons-material/Nightlight';
 import LightbulbOn from '@mui/icons-material/WbSunnyOutlined';
 import { ACTIONS } from '../App'

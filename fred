@@ -1,9 +1,0 @@
-onChange={() => {
-                                    if (modify && isDirty) {
-                                        setModify(false)
-                                        setWorkingAlarm({...props.alarmListItem})
-                                    } else {
-                                        setModify(true)
-                                    }
-                                }
-                                }

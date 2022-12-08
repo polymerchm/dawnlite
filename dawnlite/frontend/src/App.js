@@ -17,11 +17,12 @@ import { Stack,
 import {useEffect, useReducer, createContext, useState, useCallback} from 'react'
 // import { fromDataBase  } from './Components/getAlarms'
 
-
+// GLOBAL CONSTANTS
 export const $axios = axios.create({
   baseURL: 'http://127.0.0.1:5000'
 }) 
 
+export const REFRESH_DELAY = 1000 // how often (milliseconds) to sync the UI with hardware
 $axios.defaults.headers = {
   'Cache-Control': 'no-cache',
   'Pragma': 'no-cache',
@@ -65,7 +66,7 @@ function reducer(state, action) {
   let toUpdate
   switch (action.type) {
     case ACTIONS.SET_LIGHT_BRIGHTNESS:
-      $axios.post('api/light', {level: action.payload}).catch(err => {console.log(err)})
+      $axios.post('api/light', {level: action.payload}).catch(err => {console.log(`SET_LIGHT_BRIGHTNESS POST ${err}`)})
       return {...state, brightness: action.payload}
     case ACTIONS.ALARM_ADD:
       if (state.alarmList === undefined || state.alarmList.length === 0) {
@@ -73,12 +74,12 @@ function reducer(state, action) {
       } else {
         newAlarmList = [...state.alarmList, action.payload]
       }
-      $axios.post('/api/alarm',action.payload).then(response => {}).catch(err => {console.log(err)})
+      $axios.post('/api/alarm',action.payload).then(response => {}).catch(err => {console.log(`ADD_ALARM POST ${err}`)})
       return {...state, alarmList: newAlarmList}
     case ACTIONS.ALARM_DELETE:
        newAlarmList = state.alarmList.filter( list => list.id !== action.payload)
        $axios.delete('/api/alarm/'+action.payload)
-       .catch(err => {console.log(err)})
+       .catch(err => {console.log(`ALARM_DELETE DELETE ${err}`)})
       return { ...state, alarmList: newAlarmList}
     case ACTIONS.ALARM_UPDATE:
       // should  check here for overlap
@@ -91,7 +92,7 @@ function reducer(state, action) {
         }
       })
       $axios.patch('/api/alarm', toUpdate)
-      .catch(err => {console.log(err)})
+      .catch(err => {console.log(`ALARM_UPDATE PATCH ${err}`)})
       return {...state, alarmList: newAlarmList}
     case ACTIONS.LOADING:
       return { ...state, listLoading: true}
@@ -128,29 +129,18 @@ function App() {
     return $axios.get('/api/alarm', {timeout: 2000})
   }
 
-  const asyncDispatchNextAlarm = useCallback(() => {
+  const asyncDispatchNextAlarm = () => {
     //setTimeout(()=>{}, 3000)
     retrieveNextAlarm().then(response => {
       dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: response.data.alarm})
     })
-  },[])
+  }
 
   const retrieveNextAlarm = () => { // returns a promise   
     return $axios.get('/api/nextAlarm')
   }
 
 
-
-  // const asyncDispatchSetLight = () => {
-  //   retrieveLight().then(response => {
-  //     dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: response.data.level})
-  //   })
-
-  // }
-
-  // const retrieveLight = () => {
-  //   return $axios.get('/api/light')
-  // }
 
   const onSync = useCallback(() => {
     $axios.get('/api/light')
@@ -186,7 +176,7 @@ function App() {
       <Stack direction="column"
           spacing={{sx:2, sm: 3, md:5}}
       >
-          <Header level={state.brightness} dispatch={dispatch} nextAlarm={state.nextAlarm}
+          <Header level={state.brightness}  nextAlarm={state.nextAlarm}
                   onSync={onSync}/>
           <Routes>
             <Route exact path="/" element={
@@ -198,7 +188,10 @@ function App() {
               } 
             />
             <Route path="/alarm" element={
-              <Alarm alarmList={state.alarmList} listLoading={state.listLoading} dispatch={dispatch} onSync={onSync}
+              <Alarm alarmList={state.alarmList} 
+                      listLoading={state.listLoading} 
+                      dispatch={dispatch}
+                      onSync={onSync}
                                 asyncDispatch={asyncDispatchNextAlarm}
                                 />
             }

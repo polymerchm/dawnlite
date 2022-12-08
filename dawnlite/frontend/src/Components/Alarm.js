@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import React from 'react' 
+import { useState } from 'react'
 import  { Stack, Button, Box }  from '@mui/material'
 import AlarmEntry from './AlarmEntry'
 import AlarmList from './AlarmList'
@@ -8,18 +9,18 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { ACTIONS } from '../App'
-import React from 'react'
 
  
 
 
 
-const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}) => {
+const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
 
     
     const [createNewAlarmFlag, setCreateNewAlarmFlag] = useState(false)
     const [workingAlarm, setWorkingAlarm] = useState({}) // working alarmObject for entry
-    const [busy, setBusy] = useState(false)
+    const [overlapTime, setOverlapTime] = useState("")
+
 
     const [invalidEntryOpen, setInvalidEntryOpen] = useState(false)
 
@@ -43,14 +44,18 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
             if (!entry.enabled) {  // again don't wast time
                 continue
             }
-            if (alarmRepeatDays === 0) { // not the same day or both not repeating
+
+            let haveCommonRepeatDays = alarmRepeatDays & entry.repeatDays
+            if (!haveCommonRepeatDays) { // not the same day or both not repeating
                 continue
             }
             const entryStart = moment(entry.time, "HH:mm") 
             const entryEnd = moment(entryStart).add(entry.alarmDuration, 'minutes')
-            if ( 
-                (alarmStart.isBetween(entryStart, entryEnd, 'minutes', '[)') || alarmEnd.isBetween(entryStart, entryEnd, 'minutes', '(]')) || 
-                (alarmStart.isBefore(entryStart)  && alarmEnd.isAfter(entryEnd))) {
+            let startsInside = alarmStart.isBetween(entryStart, entryEnd, null, '[)')
+            let endsInside = alarmEnd.isBetween(entryStart, entryEnd, null, '(]')
+            let encloses = alarmStart.isBefore(entryStart)  && alarmEnd.isAfter(entryEnd)
+            if ( startsInside || endsInside || encloses) {
+                setOverlapTime(entry.time)
                 return true  // there is an overlap
             }
         }
@@ -58,15 +63,6 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
     } 
     
  
-    useEffect(() => {
-        const timer = setInterval(() => 
-
-          onSync()
-          
-        , 10000)
-        return () => clearInterval(timer)
-    }, [])
-
     const addAlarm = (newAlarm)  => {
         // test here for an overlapping alarm
         // if valid, add it
@@ -84,21 +80,21 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
 
     const updateAlarmList = (targetAlarm, shouldDelete)  => {
         const alarmID = targetAlarm.id
+        let isOkay = true
         if (shouldDelete) {  
             // confirm the item pointed to by teh index matched the date 
             dispatch({type: ACTIONS.ALARM_DELETE, payload: alarmID})
         } else { // update
             // check to see if the changes don;t cause a conflict
-            if (testOverlapTime(workingAlarm, true)) {
+            if (testOverlapTime(targetAlarm, true)) {
                 setInvalidEntryOpen(true)
+                isOkay= false
             } else {
                 dispatch({type: ACTIONS.ALARM_UPDATE, payload: targetAlarm})
             }
         }
         asyncDispatch()
-        
-        
-        // TODO: update the redis object here
+        return isOkay
     }
 
     return(
@@ -120,7 +116,7 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
                 </AccordionSummary>
                 <AccordionDetails>
                     <AlarmEntry  setCreateNewAlarmFlag={setCreateNewAlarmFlag} 
-                        addAlarm={addAlarm} dispatch={dispatch} setBusy={setBusy}
+                        addAlarm={addAlarm} dispatch={dispatch}
                     />
                 </AccordionDetails>
             </Accordion>
@@ -129,7 +125,7 @@ const Alarm = ({alarmList, listLoading, dispatch, $axios, asyncDispatch, onSync}
             {listLoading ? <h4>Alarms Loading.....</h4> :
             <AlarmList alarmList={alarmList} updateAlarmList={updateAlarmList}/> }
 
-            <InvalidAlarmEntry open={invalidEntryOpen} setOpen={setInvalidEntryOpen} />
+            <InvalidAlarmEntry open={invalidEntryOpen} setOpen={setInvalidEntryOpen} overlapTime={overlapTime}/>
             <h1>  </h1>
             
         </Stack>

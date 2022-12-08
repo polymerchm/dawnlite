@@ -35,13 +35,13 @@ const AlarmListItem = ({ isList,
     addAlarm,
     alarmListItem,
     }) => {
-    const [workingAlarm, setWorkingAlarm] = useState(alarmListItem)
+    const [workingAlarm, setWorkingAlarm] = useState({...alarmListItem})
     const [modify, setModify] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
 
     useEffect(() => {
         if (alarmListItem !== undefined) {
-            setWorkingAlarm(alarmListItem)
+            setWorkingAlarm({...alarmListItem})
         }
     }, [alarmListItem])
 
@@ -93,9 +93,13 @@ const AlarmListItem = ({ isList,
     }
 
     const onClickModifyButtons = (willDelete) => {
-        setIsDirty(false)
-        setModify(false)
-        updateAlarmList(workingAlarm, willDelete)
+        if (updateAlarmList(workingAlarm, willDelete)) {
+            setIsDirty(false)
+            setModify(false)
+        } else {
+            setWorkingAlarm({...alarmListItem})
+        }
+        
     }
 
     const onEditChange = (e) => {
@@ -173,7 +177,7 @@ const AlarmListItem = ({ isList,
                         <InputLabel >Intensity</InputLabel>
                         <Select
                             id="intensitySelect"
-                            value={workingAlarm.intensity || 100}
+                            value={workingAlarm.level || 100}
                             onChange={onIntensityChange}
                             disabled={isList && !modify}
                         >
@@ -236,7 +240,7 @@ const AlarmListItem = ({ isList,
         }
         
         let time =  moment(workingAlarm.time, "hh:mm").format('h:mma')
-        let intensity = `${workingAlarm.level}%`
+        let level = `${workingAlarm.level}%`
         let duration = workingAlarm.alarmDuration < 60 ? `${workingAlarm.alarmDuration} minutes` : `${workingAlarm.alarmDuration /  60} hours`
         if (workingAlarm.alarmDuration === 60) {
             duration = duration.slice(0, -1)
@@ -254,7 +258,7 @@ const AlarmListItem = ({ isList,
                     <Grid item > <Typography variant='h6'>{days}</Typography> </Grid>
                     <Grid item > <Typography variant='h6'>{time}</Typography> </Grid>
                     <Grid item > <Typography variant='h6'>{duration}</Typography> </Grid>
-                    <Grid item  > <Typography variant='h6'>{intensity}</Typography> </Grid>
+                    <Grid item  > <Typography variant='h6'>{level}</Typography> </Grid>
                     <Grid item > <Typography variant='h6'>{enabled}</Typography> </Grid>
                 </Grid>
             </Box>
@@ -331,4 +335,8 @@ const AlarmListItem = ({ isList,
     </Card>)
 }
 
-export default React.memo(AlarmListItem)
+const notChanged = (prevProps, newProps) => {
+    return true
+}
+
+export default React.memo(AlarmListItem, notChanged)

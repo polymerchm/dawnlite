@@ -1,6 +1,6 @@
 import React from 'react'
 
-import {useRef, useEffect} from 'react'
+import {useEffect} from 'react'
 // import Fragment from 'react'
 import {AppBar, 
         Toolbar,
@@ -9,18 +9,18 @@ import {AppBar,
         Box
 } from '@mui/material'
 import RecycleIcon from '@mui/icons-material/Refresh'
-import { $axios, ACTIONS } from '../App'
+import { REFRESH_DELAY } from '../App'
 
 
 
 
-const Header = ({level, dispatch, nextAlarm, onSync}) => {
-
-    
-
-
-
-
+const Header = ({level, nextAlarm, onSync}) => {
+    useEffect(() => {
+        const timer = setInterval(() => {
+          onSync()
+        }, REFRESH_DELAY)
+        return () => clearInterval(timer)
+    }, [])
 
     return (
         <div>

@@ -10,9 +10,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 
 
 
-const InvalidAlarmEntry = (props) => {
-    const open = props.open
-    const setOpen = props.setOpen
+const InvalidAlarmEntry = ({open, setOpen, overlapTime}) => {
     //const postCloseAction = props.postCloseAction
 
     const handleClose = (event, reason) => {
@@ -26,7 +24,7 @@ const InvalidAlarmEntry = (props) => {
 
     return (
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}>
-          <Alert onClose={handleClose} severity="error">Invalid time (overlapping)</Alert>
+          <Alert onClose={handleClose} severity="error">Overlaps {overlapTime} alarm</Alert>
         </Snackbar>
     )
 

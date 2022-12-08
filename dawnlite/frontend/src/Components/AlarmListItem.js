@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect , useRef} from 'react'
 import {
     Card,
     CardContent,
@@ -25,7 +25,8 @@ import { repeatDayData } from './repeatDays'
 import { defaultAlarm } from './getAlarms'
 import { uuid } from '../uuid'
 import WeekDayWeekEnd from './WeekDayWeekEnd';
-import { ACTIONS } from '../App'
+
+
 
 
 
@@ -38,12 +39,18 @@ const AlarmListItem = ({ isList,
     const [workingAlarm, setWorkingAlarm] = useState({...alarmListItem})
     const [modify, setModify] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
+    const itemRef = useRef()
 
     useEffect(() => {
         if (alarmListItem !== undefined) {
             setWorkingAlarm({...alarmListItem})
         }
     }, [alarmListItem])
+
+    useEffect(() => {
+        if (modify) itemRef.current.scrollIntoView({alignToTop: false,  behavior: 'smooth'})
+    },[modify])
+
 
 
     const changeRepeatDay = (bit) => (e) => {
@@ -110,6 +117,7 @@ const AlarmListItem = ({ isList,
             }
         } 
         setModify(e.target.checked)
+       
     }
 
 
@@ -272,6 +280,13 @@ const AlarmListItem = ({ isList,
 
     const ListItemButtons = () => {
         const Buttons = () => {
+            // let ref = useRef()
+            // useEffect(()=>{
+            //     if (modify) {
+            //         ref.current.scrollIntoView({behavior: 'smooth'})
+
+            //     }
+            // },[modify])
             return ['a', 'b'].map(function (id, index) {
                 const onclicks = modify ?
                     {
@@ -280,7 +295,7 @@ const AlarmListItem = ({ isList,
                     }
                     : { a: onSave, b: onCancel }
                 const labels = modify ? { a: "Update", b: "Delete" } : { a: "Save", b: "Cancel" }
-                return <Button size="medium"
+                return <Button size="medium" // ref={ref}
                     key={id}
                     variant="contained"
                     onClick={onclicks[id]}
@@ -314,8 +329,8 @@ const AlarmListItem = ({ isList,
     }
 
     return (
-    <Card sx={{ margin: 'auto' , mt: 0}}>
-        <CardContent>
+    <Card sx={{ margin: 'auto' , mt: 0}}> 
+        <CardContent ref={itemRef}>
             {isList &&
                 <FormGroup>
                     <FormControlLabel

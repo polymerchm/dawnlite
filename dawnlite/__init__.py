@@ -55,6 +55,16 @@ def create_app():
     # if -ve, its tell the ramping routing to stop immediately.
     app.config['DAWNLITE_RAMPING_KEY'] = 'dawnlite_ramping'
  
+    # GPIO Inventory (BCM(Pin))
+    #
+    # 18(12)      Main Light (PWM)
+    # 19(13)      Status LED (PCM)
+    # 20(38)      Dim button
+    # 21(40)      Toggle Button 
+    # 26(37)      Bright Button
+    # 6(31)       Reset (used by RaspWifi)
+
+
     # app.config['ALARM_PRE_DURATION'] = 60 * 30 # 30 minutes
     app.config['ALARM_POST_DURATION'] = 60 * 15 # 15 minutes
     app.config['LED_TYPE'] = "common_anode" # common anode -> pull down port to turn on
@@ -69,6 +79,7 @@ def create_app():
     app.config['DIM_BUTTON'] = 'GPIO20'
     app.config['BRIGHT_BUTTON'] = 'GPIO26'
     app.config['TOGGLE_BUTTON'] = 'GPIO21'
+    app.config['RASPIWIFI_RESET'] = 'GPIO6'
 
     app.config['REMOTE_REPEAT_DELAY'] = 2 # seconds
     app.config['STATUS_LED_INTERPULSE_DELAY'] = 0.500  # 500 milliseconds

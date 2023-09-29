@@ -11,3 +11,6 @@ def getWiFiList():
         wifiList = sorted([token for token in tokens if len(token) > 0  and not token.startswith('\x00') ])
 
     return wifiList
+
+if __name__ == '__main__':
+    print(getWiFiList())

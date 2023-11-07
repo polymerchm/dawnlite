@@ -17,10 +17,11 @@ import { Stack,
 
 import {useEffect, useReducer, createContext, useState, useCallback} from 'react'
 
+const flask_server_url = 'http://127.0.0.1:5000'
 
 // GLOBAL CONSTANTS
 export const $axios = axios.create({
-  baseURL: 'http://127.0.0.1:5000'
+  baseURL: flask_server_url
 }) 
 
 
@@ -141,10 +142,11 @@ function App() {
     return $axios.get('/api/nextAlarm')
   }
 
-// this one setups up for the SSE 
+//  this one setups up for the SSE 
+  
   useEffect(() => { // runs on mount 
     console.log('creating the listeners')
-    const sse = new EventSource('/api/stream')
+    const sse = new EventSource(flask_server_url + '/api/stream')
 
     sse.addEventListener('message', (e) => {
       console.log(`got a message of type ${e}`)
@@ -171,6 +173,7 @@ function App() {
 
 
   useEffect(() => { // only runs on initial call, set things up
+    console.log("in the  useeffect")
 
     async function getLightInfo() {
       try {
@@ -189,7 +192,7 @@ function App() {
   //TODO:    determine if the configuration files exist
 
  
-
+  console.log("in the function")
   return (
     <BrowserRouter className="App">
       <Stack direction="column"

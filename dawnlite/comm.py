@@ -79,7 +79,7 @@ class State:
 
 
 
-
+# need to setup the thinks for SSE h
 
 
 @attr.s
@@ -93,7 +93,7 @@ def send_message(app, message, queue_key):
     # LOGGER.debug(f"send_message msg={message}, queue={queue_key}")
     now = datetime.datetime.now()
     # supress a repeat message sooner than the cutoff
-    if message == last_message and (now - last_message_time).total_seconds() < app.config['REMOTE_REPEAT_DELAY']:
+    if message == last_message and (now - last_message_time).total_seconds() < int(app.config['REMOTE_REPEAT_DELAY']):
         pass
     else:
         data = jsonpickle.encode(message)
@@ -114,10 +114,12 @@ def set_state(app, state):
     # LOGGER.debug(f"in set_state state={state}")
     state.defaultLevel = 100 if app.config['LED_TYPE'] == "common_anode" else 0
     data = jsonpickle.encode(state)
-    redis_cli.set(app.config['DAWNLITE_STATE_KEY'], data)
+    redis_cli.set(app.config['STATE_KEY'], data)
+
+    # here is where we signal changes to the app.
 
 def get_state(app):
-    data = redis_cli.get(app.config['DAWNLITE_STATE_KEY'])
+    data = redis_cli.get(app.config['STATE_KEY'])
     if data is None:
         LOGGER.error("no state available, initializing")
         state = State()
@@ -128,7 +130,7 @@ def get_state(app):
     return state
 
 def get_ramping(app):
-    value = float(redis_cli.get(app.config['DAWNLITE_RAMPING_KEY']))
+    value = float(redis_cli.get(app.config['RAMPING_KEY']))
     if type(value) != float:
         LOGGER.error(f'Ramping return non floating point result {value}')
         sys.exit(1)
@@ -140,7 +142,7 @@ def set_ramping(app, value):
         LOGGER.error(f'Ramping return non floating point result {value}')
         sys.exit(1)
     else:
-         redis_cli.set(app.config['DAWNLITE_RAMPING_KEY'], value)
+         redis_cli.set(app.config['RAMPING_KEY'], value)
         
 
 

@@ -28,6 +28,10 @@ if (uninstall_answer.lower() == "y"):
     os.system('mv /etc/dhcpcd.conf.original /etc/dhcpcd.conf 2>/dev/null')
     os.system('sed -i \'s/# RaspiWiFi Startup//\' /etc/crontab')
     os.system('sed -i \'s/@reboot root run-parts \/etc\/cron.raspiwifi\///\' /etc/crontab')
+    if os.path.exists('/etc/hostname.bak'):
+        os.system('mv /etc/hostname.bak /etc/hostname')
+    if os.path.exists('/etc/hosts.bak'):
+        os.system('mv /etc/hosts.bak /etc/hosts')
     
     print()
     print()

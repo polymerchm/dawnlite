@@ -1,3 +1,14 @@
+#dependencies
+
+# dependencies
+node_modules
+recipedir
+venv
+__pycache__
+
+#specific files
 record.log
 instance/alarms.db
+.env.private
+*.pyc
 

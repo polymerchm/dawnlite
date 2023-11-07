@@ -5,7 +5,7 @@ from dawnlite.enums import StatusLightMessage as MSG
 
 # send a heartbeat request
 
-led_queue = app.config['DAWNLITE_STATUS_LIGHT_QUEUE_KEY'] 
+led_queue = app.config['STATUS_LIGHT_QUEUE_KEY'] 
 
 comm.send_message(app, MSG.HEARTBEAT, led_queue)
 for i in range(0,5):

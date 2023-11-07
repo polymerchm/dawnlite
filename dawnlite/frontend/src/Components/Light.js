@@ -14,12 +14,6 @@ import { ACTIONS } from '../App'
 
 const Light = ({dispatch, brightness}) => {
 
-  
-
-
-
-  
-
   const dispatchChange = (value) => {
     dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: value})
   }
@@ -82,7 +76,7 @@ const Light = ({dispatch, brightness}) => {
             {value: 75,   label: "75%"},
             {value: 100,  label: "full"}
           ]}
-          onChange={newIntensity}
+          // onChange={commitedIntensity}
           onChangeCommitted={commitedIntensity}
         /> 
   

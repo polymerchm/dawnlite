@@ -29,6 +29,7 @@ server_port_choice = input("Which port would you like to use for the Configurati
 print()
 ssl_enabled_choice = input("Would you like to enable SSL during configuration mode \n(NOTICE: you will get a certificate ID error \nwhen connecting, but traffic will be encrypted) [y/N]?: ")
 os.system('clear')
+local_host_name = input("What name would you like this system to present as\n internaet host name? [default: danwlite]")
 print()
 print()
 install_ans = input("Are you ready to commit changes to the system? [y/N]: ")
@@ -36,7 +37,7 @@ install_ans = input("Are you ready to commit changes to the system? [y/N]: ")
 if(install_ans.lower() == 'y'):
 	setup_lib.install_prereqs()
 	setup_lib.copy_configs(wpa_enabled_choice)
-	setup_lib.update_main_config_file(entered_ssid, auto_config_choice, auto_config_delay, ssl_enabled_choice, server_port_choice, wpa_enabled_choice, wpa_entered_key)
+	setup_lib.update_main_config_file(entered_ssid, auto_config_choice, auto_config_delay, ssl_enabled_choice, server_port_choice, wpa_enabled_choice, wpa_entered_key, local_host_name)
 else:
 	print()
 	print()

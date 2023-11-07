@@ -7,6 +7,7 @@ import Alarm from './Components/Alarm'
 import Footer from './Components/Footer'
 import axios from 'axios'
 
+
 import {  Routes, 
           Route, 
           BrowserRouter}  from "react-router-dom";
@@ -22,7 +23,7 @@ export const $axios = axios.create({
   baseURL: 'http://127.0.0.1:5000'
 }) 
 
-export const REFRESH_DELAY = 1000 // how often (milliseconds) to sync the UI with hardware
+
 $axios.defaults.headers = {
   'Cache-Control': 'no-cache',
   'Pragma': 'no-cache',
@@ -126,7 +127,7 @@ function App() {
   }
 
   const retrieveAlarmList = () => { // returns a promise   
-    return $axios.get('/api/alarm', {timeout: 2000})
+    return $axios.get('/api/alarms', {timeout: 2000})
   }
 
   const asyncDispatchNextAlarm = () => {
@@ -140,18 +141,36 @@ function App() {
     return $axios.get('/api/nextAlarm')
   }
 
+// this one setups up for the SSE 
+  useEffect(() => { // runs on mount 
+    console.log('creating the listeners')
+    const sse = new EventSource('/api/stream')
 
-
-  const onSync = useCallback(() => {
-    $axios.get('/api/light')
-    .then(result => {
-        dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: result.data.level})
+    sse.addEventListener('message', (e) => {
+      console.log(`got a message of type ${e}`)
     })
-    .catch(err => console.log(`Error after sync button handler Error=${err}`))
-  },[])
+
+    sse.addEventListener('light_change', (e)=> {
+      console.log(`light change event ${e}`)
+    })
+
+    sse.addEventListener('next_alarm', (e) => {
+      console.log(`next alarm event ${e}` )
+    })
+
+    sse.onerror = (e) => {
+      sse.close()
+    }
+
+    return (e) => {
+      sse.close()
+    }
+
+  })
 
 
-  useEffect(() => { // only runs on initial call
+
+  useEffect(() => { // only runs on initial call, set things up
 
     async function getLightInfo() {
       try {
@@ -176,8 +195,7 @@ function App() {
       <Stack direction="column"
           spacing={{sx:2, sm: 3, md:5}}
       >
-          <Header level={state.brightness}  nextAlarm={state.nextAlarm}
-                  onSync={onSync}/>
+          <Header level={state.brightness}  nextAlarm={state.nextAlarm}/>
           <Routes>
             <Route exact path="/" element={
                 <Light brightness={state.brightness} dispatch={dispatch}/>
@@ -191,8 +209,7 @@ function App() {
               <Alarm alarmList={state.alarmList} 
                       listLoading={state.listLoading} 
                       dispatch={dispatch}
-                      onSync={onSync}
-                                asyncDispatch={asyncDispatchNextAlarm}
+                      asyncDispatch={asyncDispatchNextAlarm}
                                 />
             }
             />

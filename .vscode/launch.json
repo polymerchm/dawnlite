@@ -5,6 +5,8 @@
     "version": "0.2.0",
     "configurations": [
 
+    
+
 
         {
             "name": "Python: daemon",
@@ -35,13 +37,6 @@
             "justMyCode": true
         },
         {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}/frontend/src"
-        },
-        {
             "name": "Python: Dawnlight",
             "type": "python",
             "request": "launch",
@@ -58,6 +53,14 @@
                 "--timeout=7200"
             ],
             // "postDebugTask": "killdebugger"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "url": "http://dawnlite.local:3000",
+            "webRoot": "${workspaceFolder}/frontend/src"
         }
+        
     ]
 }

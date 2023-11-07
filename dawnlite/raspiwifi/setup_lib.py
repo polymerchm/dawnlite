@@ -20,6 +20,10 @@ def install_prereqs():
 	os.system('clear')
 	os.system('apt update')
 	os.system('clear')
+	print('Installing redis-server, nginx, lirc')
+	print()
+	os.system('apt install redis-server  nginx lirc -y')
+	print()
 	os.system('apt install python3 python3-rpi.gpio python3-pip dnsmasq hostapd -y')
 	os.system('clear')
 	print("Installing PyYAML...")
@@ -54,7 +58,7 @@ def copy_configs(wpa_enabled_choice):
 	os.system('mv /usr/lib/raspiwifi/reset_device/static_files/raspiwifi.conf /etc/raspiwifi')
 	os.system('touch /etc/raspiwifi/host_mode')
 
-def update_main_config_file(entered_ssid, auto_config_choice, auto_config_delay, ssl_enabled_choice, server_port_choice, wpa_enabled_choice, wpa_entered_key):
+def update_main_config_file(entered_ssid, auto_config_choice, auto_config_delay, ssl_enabled_choice, server_port_choice, wpa_enabled_choice, wpa_entered_key, local_host_name):
 	if entered_ssid != "":
 		os.system('sed -i \'s/RaspiWiFi Setup/' + entered_ssid + getserial()[-4:] + '/\' /etc/raspiwifi/raspiwifi.conf')
 	if wpa_enabled_choice.lower() == "y":
@@ -68,3 +72,9 @@ def update_main_config_file(entered_ssid, auto_config_choice, auto_config_delay,
 		os.system('sed -i \'s/ssl_enabled=0/ssl_enabled=1/\' /etc/raspiwifi/raspiwifi.conf')
 	if server_port_choice != "":
 		os.system('sed -i \'s/server_port=80/server_port=' + server_port_choice + '/\' /etc/raspiwifi/raspiwifi.conf')
+	if local_host_name != "":
+		os.system('mv /etc/hostname /etc/hostname.bak')
+		os.system('touch /etc/hostname')
+		os.system(f"echo {local_host_name} > /etc/hostname")
+		os.system(f"sed -i.bak 's/127\.0\.1\.1.*$/127.0.1.1\t{local_host_name}/' /etc/hosts")
+

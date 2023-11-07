@@ -17,8 +17,8 @@ SOCKPATH = "/var/run/lirc/lircd"
 
 #globals
 
-remote_queue = app.config['DAWNLITE_REMOTE_QUEUE_KEY']
-status_queue = app.config['DAWNLITE_STATUS_LIGHT_QUEUE_KEY']
+remote_queue = app.config['REMOTE_QUEUE_KEY']
+status_queue = app.config['STATUS_LIGHT_QUEUE_KEY']
 
 LOGGER = logging.getLogger('dawnlite')
 

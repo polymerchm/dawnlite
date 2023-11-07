@@ -8,18 +8,10 @@ import {AppBar,
         Box
 } from '@mui/material'
 import RecycleIcon from '@mui/icons-material/Refresh'
-import { REFRESH_DELAY } from '../App'
 
 
+const Header = ({level, nextAlarm}) => {
 
-
-const Header = ({level, nextAlarm, onSync}) => {
-    useEffect(() => {
-        const timer = setInterval(() => {
-          onSync()
-        }, REFRESH_DELAY)
-        return () => clearInterval(timer)
-    }, [])
 
     return (
         <div>
@@ -39,7 +31,6 @@ const Header = ({level, nextAlarm, onSync}) => {
                         color="inherit"
                         aria-label="refresh alarms"
                         sx={{ mr: 2 }}
-                        onClick = {onSync}
                     > <RecycleIcon/>
                     </IconButton>
                 </Toolbar>

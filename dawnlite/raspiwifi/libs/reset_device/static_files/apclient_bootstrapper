@@ -3,3 +3,6 @@
 python3 /usr/lib/raspiwifi/reset_device/reset.py &
 
 python3 /usr/lib/raspiwifi/reset_device/connection_monitor.py &
+
+#turn on nginx
+#turn on the dawnlite daemons

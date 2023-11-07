@@ -15,9 +15,9 @@ from dawnlite.hw.button_utils import Button
 from dawnlite.hw.ip_utils import get_ip_address
 from dawnlite.hw.mainLEDControl import MainLED
 
-alarm_queue  = dawnlite.app.config['DAWNLITE_ALARM_QUEUE_KEY']
-remote_queue =  dawnlite.app.config['DAWNLITE_REMOTE_QUEUE_KEY']
-light_queue = dawnlite.app.config['DAWNLITE_MAIN_LIGHT_QUEUE_KEY']
+alarm_queue  = dawnlite.app.config['ALARM_QUEUE_KEY']
+remote_queue =  dawnlite.app.config['REMOTE_QUEUE_KEY']
+light_queue = dawnlite.app.config['MAIN_LIGHT_QUEUE_KEY']
 
 LOGGER = logging.getLogger('dawnlite')
 AlarmTimer = None # timer will "bind" here
@@ -29,7 +29,7 @@ def shutdown(*args):
 def reschedule_alarms(alarms, wasStopped=False):  
     dirty = False
     #TODO: try to remove the alarm post duration thingy.
-    seconds = 10  if wasStopped else dawnlite.app.config['ALARM_POST_DURATION']
+    seconds = 10  if wasStopped else int(dawnlite.app.config['ALARM_POST_DURATION'])
     now = datetime.datetime.now()
     delay = datetime.timedelta(seconds=seconds)
     cutoff = now - delay
@@ -70,55 +70,6 @@ def configure_light(alarms, led):
                                                 endAlarm, args=[led])
                 AlarmTimer.start()
  
-def getWifiList():
-    result = subprocess.run(['sudo', r'/home/pi/Programming/dawn_lite/scanWLAN.sh'],capture_output=True)
-    if result.returncode != 0:
-        wifiList = []
-    else: 
-        tokens = list(set([s.strip().split(":")[1].replace('"','')  for s in result.stdout.decode("utf-8").split('\n') if len(s.strip().split(":")) == 2]))
-
-        wifiList = sorted([token for token in tokens if len(token) > 0  and not token.startswith('\x00') ])
-
-    return wifiList
-
-
-def validateInternet():
-    ip_address = get_ip_address()
-    if  ip_address.startswith('192.168'):
-        return 
-
-    # no valid internet.   Assume not set 
-
-    # turn on the heartbeat
-    # turn on the local internet as as server at 192.168.4.1
-    # wait for the user to return a hostname/ssid/password
-
-    # get all local networks and put list in REDIS
-    wifiList = getWifiList()
-
-    if len(wifiList) == 0:
-        time.sleep(2)
-        for i in range(5): #try 5 times, then give up
-            wifiList = getWifiList()
-            if len(wifiList) > 0:
-                break
-            time.sleep(3)
-        if len(wifiList) == 0:
-            LOGGER.critical("can't access the interface")
-            sys.exit(1)
-    
-    comm.send_message(wifiList, dawnlite.app.config['WIFI_LIST_KEY'])
-    # turn on the local server
-
-    while True: #wait till the network is assigned
-        result = comm.receive_message(dawnlite.app.config['NETWORK_INFO_KEY'])
-        if result == None:
-            time.sleep(10)
-        else:
-            break
-
-    
-
 def endAlarm(*args): # called at end of an alarm duration
     global AlarmTimer
     led = args[0]
@@ -171,9 +122,10 @@ def main():
                 # cancel the alarm if one is in progress.
                 stopAlarmAndRamp()
                 if msg == RemoteMessage.BRIGHTER:
-  
                     if state.level == 0:
                         state.update(next_level = 10, ramped = False)
+                    elif state.level == 100:
+                        pass
                     else:
                         newLevel = min(state.level + 10, 100)
                         state.update(next_level = newLevel, ramped = False)    
@@ -189,7 +141,7 @@ def main():
                     else:
                         state.update(next_level=50)
                 elif msg == RemoteMessage.OFF:
-                    state.update(next_level=0, ramped=True)
+                    state.update(next_level=0, ramped=False)
                 elif msg == RemoteMessage.LOW:
                     state.update(next_level = 25, ramped = True)
                 elif msg == RemoteMessage.MEDIUM:

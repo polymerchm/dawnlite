@@ -6,103 +6,68 @@ import subprocess
 import os
 import sys
 
-
-
 import click
-from flask import Flask, request, jsonify, abort, render_template
-from flask_cors import CORS, cross_origin
+from flask import Flask, request, jsonify, abort, render_template, Response
 
+from flask_cors import CORS, cross_origin
+import redis
+from dotenv import dotenv_values
 from dawnlite import model
 from dawnlite import comm
 from dawnlite import templates
+from dawnlite.utils import string_or_numeric
+import time
+from datetime import datetime
+
 
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 
+def string_or_numeric(value):
+    try:
+        int_value = int(value)
+        return int_value
+    except:
+        try: 
+            float_value = float(value)
+            return float_value
+        except:
+            return value
+
 def create_app():
+
+    
     app = Flask(__name__, 
                       static_folder=os.path.join(ROOT_PATH, 'frontend', 'static'),
                       template_folder=os.path.join(ROOT_PATH, 'frontend'))
 
     app.config['CORS_HEADERS'] = 'Content-Type'                  
-
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}/alarms.db'.format(app.instance_path)
 
-    # the alarm queue is a LIFO of commands to turn on the light
-    # the dawnliteDaemoon processese these
-    app.config['DAWNLITE_ALARM_QUEUE_KEY'] = 'dawnlite_alarm_queue'
   
-    #the remote_queue is a LIFO list of commands from the remoteControl daemon
-    # to change the light settings in real time the dawnlightDaemon processes there
-    app.config['DAWNLITE_REMOTE_QUEUE_KEY'] = 'dawnlite_remote_queue'
-    
-    # the status_light_quue is a LIFO List of commands to to on/off the status led and
-    # is processed by the statusLED daemon
-    app.config['DAWNLITE_STATUS_LIGHT_QUEUE_KEY'] = 'dawnlite_status_light_queue'
-    
-    # the status_light_quue is a LIFO List of commands to to on/off the status led and
-    # is processed by the statusLED daemon
-    app.config['DAWNLITE_MAIN_LIGHT_QUEUE_KEY'] = 'dawnlite_main_light_queue'
-
-    #current state of the app (the backend)
-    #all references to the state should be of laterest version on the redis server
-    app.config['DAWNLITE_STATE_KEY'] = 'dawnlite_state'
-
-    #if ramping the light in in process
-    # the button and remoteControl apps wiill read/set this key
-    # if 0, then ramping is not ocurring.   if a +ve number, its the number of seconds between steps
-    # if -ve, its tell the ramping routing to stop immediately.
-    app.config['DAWNLITE_RAMPING_KEY'] = 'dawnlite_ramping'
- 
-    # GPIO Inventory (BCM(Pin))
-    #
-    # 18(12)      Main Light (PWM)
-    # 19(13)      Status LED (PCM)
-    # 20(38)      Dim button
-    # 21(40)      Toggle Button 
-    # 26(37)      Bright Button
-    # 6(31)       Reset (used by RaspWifi)
+    env = dotenv_values('dawnlite/.env.global')
+    for (key,val) in env.items():
+        app.config[key] = string_or_numeric(val)
 
 
-    # app.config['ALARM_PRE_DURATION'] = 60 * 30 # 30 minutes
-    app.config['ALARM_POST_DURATION'] = 60 * 15 # 15 minutes
-    app.config['LED_TYPE'] = "common_anode" # common anode -> pull down port to turn on
-    #app.config['LED_TYPE'] = "common_cathode" # common cathode -> pull up port to turn on
-    app.config['RAMP_DURATION'] = 1 # seconds  
-    app.config['PWM_FREQUENCY'] = 12000 # 12 KHz 
-    app.config['RAMP_STEPS'] = 100
+   
 
-    app.config['MAIN_LED_PWM'] = 1  #GPIO 18(12)
-    app.config['STATUS_LED_PWM'] = 0 #GPIO 19(13)
-
-    app.config['DIM_BUTTON'] = 'GPIO20'
-    app.config['BRIGHT_BUTTON'] = 'GPIO26'
-    app.config['TOGGLE_BUTTON'] = 'GPIO21'
-    app.config['RASPIWIFI_RESET'] = 'GPIO6'
-
-    app.config['REMOTE_REPEAT_DELAY'] = 2 # seconds
-    app.config['STATUS_LED_INTERPULSE_DELAY'] = 0.500  # 500 milliseconds
-
-    app.config['WIFI_LIST_KEY'] = 'wifi_list'
-    app.config['NETWORK_INFO_KEY'] = 'network_info'
-
-
- 
-    
     app.config['DEBUG'] = True
 
-    
 
     model.db.init_app(app)
     model.db.app = app
     CORS(app, resources={r"/*": {"origins": "*"}})
     
 
+
     return app
 
 
 app = create_app()
+
+
 
 logging.basicConfig( filename='record.log', 
                     format = '%(levelname)-10s %(asctime)s %(module)-20s-%(funcName)-20s %(message)s'
@@ -111,7 +76,7 @@ LOGGER = logging.getLogger('dawnlite')
 LOGGER.setLevel(logging.DEBUG)
 
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
-alarm_queue = app.config['DAWNLITE_ALARM_QUEUE_KEY']
+alarm_queue = app.config['ALARM_QUEUE_KEY']
 
 
 # def options (self):
@@ -120,8 +85,22 @@ alarm_queue = app.config['DAWNLITE_ALARM_QUEUE_KEY']
 #       'Access-Control-Allow-Methods' : '*' }
 
 
+# sse setups here
 
-@app.route('/api/alarm', methods=['GET'])
+@app.route('/api/stream')
+def stream():
+    def stream_send():
+        while True:
+            # the decision logic goes in here
+            time.sleep(1)
+            yield f'data: {datetime.now().second}\nevent: message\n\n'
+
+
+    return Response(stream_send(), mimetype='text/event-stream')
+        
+
+
+@app.route('/api/alarms', methods=['GET'])
 def get_alarms():
     LOGGER.debug("Entering alarm GET")
     alarms = model.Alarm.query.all()
@@ -207,7 +186,7 @@ def patch_light():
             if  next_level != state.level:
                 state.update(next_level=next_level)
                 comm.set_state(app,state)
-                comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['DAWNLITE_MAIN_LIGHT_QUEUE_KEY'])
+                comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
             return jsonify({'level': next_level})
     else:
         return '', 204
@@ -217,12 +196,6 @@ def next_alarm():
     alarm = model.Alarm.query.order_by(model.Alarm.next_alarm)
     nextAlarm = "no alarms" if alarm.first() == None else alarm.first().next_alarm
     return jsonify({'alarm' : nextAlarm})
-
-
-# @app.route('/api', defaults={'path': ''})
-# @app.route('/api/<path:path>')
-# def api_four_oh_four(path):
-#     flask.abort(404)
 
 
 @app.route('/', defaults={'path': ''})

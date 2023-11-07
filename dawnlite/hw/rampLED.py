@@ -4,7 +4,6 @@ from locale import setlocale
 from dawnlite import comm
 import time
 import math
-import threading
 
 from dawnlite import app
 import logging
@@ -39,7 +38,7 @@ def rampLED(pwm, initialLevel=-1, finalLevel=-1, duration=app.config['RAMP_DURAT
 
     comm.set_ramping(app, delay) # set flag for ramping   
     for i in range(0,rampSteps):
-        rampFlag = comm.get_ramping(app) # minotor for changes
+        rampFlag = comm.get_ramping(app) # monitor for changes
         if rampFlag >= 0.0:
             currentLevel += inc_delta
             if pwm.off == 0:

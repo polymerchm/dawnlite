@@ -4,7 +4,7 @@ import sys
 
 import socket
 import time
-import signal
+import signalls 
 from dawnlite import app
 from dawnlite import comm
 import dawnlite.hw.statusLEDControl as StatusLEDControl
@@ -70,7 +70,7 @@ def main():
     irRemote = IRW()
     button = Button()
 
-    statusLed = StatusLEDControl.StatusLED(app.config['STATUS_LED_PWM'])
+    statusLed = StatusLEDControl.StatusLED(int(app.config['STATUS_LED_PWM']))
     statusLed.setParameters(duration=0.05, level=100)
     while True:
         # next command is blocking, so waits for an IR code

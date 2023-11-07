@@ -1,7 +1,9 @@
 
 import logging
-import dawnlite
+from dawnlite import app
+import re
 from gpiozero import Button as GPIOZEROButton
+import sys
 
 LOGGER = logging.getLogger('dawnlite')
 
@@ -24,6 +26,22 @@ class Button(GPIOZEROButton):
         self.state = 0
 
 
+def buttonPort(buttonString):
+    if not buttonString in app.config(buttonString):
+        print(f'{buttonString} is an invalid key')
+        sys.exit(1)
+
+    
+    match = re.match('^GPIO(\d*)$', app.config[buttonString])
+    if match == None:
+        print(f'{buttonString} is an invalid key')
+        sys.exit(1)
+
+    return int(match[0])
+
+    
+        
+    
 
  
 

@@ -61,7 +61,7 @@ def main():
                 comm.set_ramping(app,0.0) # set flap to non-ramping
             state = comm.get_state(app)
             LOGGER.debug(f"on entry state={state}")
-            sendRemoteMessage(RemoteMessage.CLEARALARMTIMER)
+            
             if state.level != 0:
                 state.level = 50
                 state.next_level = 0           
@@ -71,6 +71,9 @@ def main():
             state.ramped = False
             comm.set_state(app, state)
             led.setLevel(updateLevel=True)
+            sendRemoteMessage(RemoteMessage.TOGGLE)
+            time.sleep(0.1)
+            sendRemoteMessage(RemoteMessage.CLEARALARMTIMER)
             toggle.resetState()
         elif toggle.state == 2:
             LOGGER.debug("wants to reset")

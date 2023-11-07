@@ -17,7 +17,7 @@ LOGGER = logging.getLogger('dawnlite')
 
 class MainLED():
     def __init__(self):
-        self.freq =  app.config['PWM_FREQUENCY']
+        self.freq =  int(app.config['PWM_FREQUENCY'])
         self.off = 0 # 100 if app.config['LED_TYPE'] == 'common_anode' else 0
         self.pwm = HardwarePWM(1, hz=self.freq)
         self.pwm.off = self.off
@@ -25,11 +25,11 @@ class MainLED():
         state = comm.State()
         state.level = 0
         state.ramped = False
-        state.rampDuration = app.config['RAMP_DURATION']
+        state.rampDuration = int(app.config['RAMP_DURATION'])
         comm.set_state(app, state)
  
     def ramp(self, initialLevel, finalLevel, 
-                duration=app.config['RAMP_DURATION'], updateLevel = False):
+                duration=int(app.config['RAMP_DURATION']), updateLevel = False):
     # ramp up or down the LED intensity
         rampLED(self.pwm, initialLevel, finalLevel, duration)
         if updateLevel:

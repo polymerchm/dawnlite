@@ -55,7 +55,8 @@ const AlarmListItem = ({ isList,
 
     const changeRepeatDay = (bit) => (e) => {
         setIsDirty(true)
-        setWorkingAlarm({ ...workingAlarm, repeatDays: workingAlarm.repeatDays ^ bit })
+        let repeat = workingAlarm.repeatDays ^ bit 
+        setWorkingAlarm({ ...workingAlarm, repeatDays: repeat })
     }
 
 

@@ -21,8 +21,8 @@ LOGGER = logging.getLogger('dawnlite')
 #   white heartbeat (threaded)
 #   pulsed white (2, 4 , or 6) (threaded)
 
-status_queue = app.config['DAWNLITE_STATUS_LIGHT_QUEUE_KEY']
-interpulseDelay = app.config['STATUS_LED_INTERPULSE_DELAY']
+status_queue = app.config['STATUS_LIGHT_QUEUE_KEY']
+interpulseDelay = float(app.config['STATUS_LED_INTERPULSE_DELAY'])
 PWM = app.config['STATUS_LED_PWM']
 
 

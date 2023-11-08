@@ -70,7 +70,7 @@ function reducer(state, action) {
   let toUpdate
   switch (action.type) {
     case ACTIONS.SET_LIGHT_BRIGHTNESS:
-      $axios.post('api/light', {level: action.payload}).catch(err => {console.log(`SET_LIGHT_BRIGHTNESS POST ${err}`)})
+      $axios.post('/api/light', {level: action.payload}).catch(err => {console.log(`SET_LIGHT_BRIGHTNESS POST ${err}`)})
       return {...state, brightness: action.payload}
     case ACTIONS.ALARM_ADD:
       if (state.alarmList === undefined || state.alarmList.length === 0) {
@@ -149,7 +149,7 @@ function App() {
 //  this one setups up for the SSE 
   
   useEffect(() => { // runs on mount 
-    console.log('creating the listeners')
+
     const sse = new EventSource(flask_server_url + '/api/stream')
 
     sse.addEventListener('message', (e) => {
@@ -158,11 +158,11 @@ function App() {
     })
 
     sse.addEventListener('light_change', (e)=> {
-      console.log(`light change event ${e}`)
+      dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: e.value})
     })
 
     sse.addEventListener('next_alarm', (e) => {
-      console.log(`next alarm event ${e}` )
+      dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: e.data})
     })
 
     sse.onerror = (e) => {
@@ -197,13 +197,12 @@ function App() {
   //TODO:    determine if the configuration files exist
 
  
-  console.log("in the function")
   return (
     <BrowserRouter className="App">
       <Stack direction="column"
           spacing={{sx:2, sm: 3, md:5}}
       >
-          <Header level={state.brightness}  nextAlarm={state.nextAlarm} testing={state.testing}/>
+          <Header level={state.brightness}  nextAlarm={state.nextAlarm}/>
           <Routes>
             <Route exact path="/" element={
                 <Light brightness={state.brightness} dispatch={dispatch}/>
@@ -218,6 +217,7 @@ function App() {
                       listLoading={state.listLoading} 
                       dispatch={dispatch}
                       asyncDispatch={asyncDispatchNextAlarm}
+                      
                                 />
             }
             />

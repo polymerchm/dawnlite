@@ -132,11 +132,11 @@ function App() {
   }
 
   const retrieveAlarmList = () => { // returns a promise   
-    return $axios.get('/api/alarms', {timeout: 2000})
+
+    return $axios.get('/api/alarms')
   }
 
   const asyncDispatchNextAlarm = () => {
-    //setTimeout(()=>{}, 3000)
     retrieveNextAlarm().then(response => {
       dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: response.data.alarm})
     })
@@ -153,27 +153,32 @@ function App() {
     const sse = new EventSource(flask_server_url + '/api/stream')
 
     sse.addEventListener('message', (e) => {
+      console.log(`message event ${e}`)
       dispatch({type: ACTIONS.TESTING, payload: e.data})
       
     })
 
     sse.addEventListener('light_change', (e)=> {
+      console.log(`light_change event ${e}`)
       dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: e.value})
     })
 
     sse.addEventListener('next_alarm', (e) => {
+      console.log(`next aralm event ${e}`)
       dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: e.data})
     })
 
     sse.onerror = (e) => {
+      console.log(`On Error Fired ${e}`)
       sse.close()
     }
 
-    return (e) => {
-      sse.close()
-    }
+    // return (e) => {
+    //   console.log(`Return fired ${e}`)
+    //   sse.close()
+    // }
 
-  })
+  },[])
 
 
 

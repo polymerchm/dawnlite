@@ -47,7 +47,8 @@ export const ACTIONS = {
   LOADING:                "loading",
   FORCE_LIGHT_STATE:      "force light",
   SET_NEXT_ALARM:         "set next alarm",
-  SET_BUSY_FLAG:          "set busy flag"
+  SET_BUSY_FLAG:          "set busy flag",
+  TESTING:                "set testing value"
 }
 
 
@@ -58,7 +59,8 @@ const initialState = {
   currentEntry: null,
   listLoading: false,
   nextAlarm: "",
-  busy: false
+  busy: false,
+  testing: 0
 }
 
 
@@ -106,6 +108,8 @@ function reducer(state, action) {
         return {...state, nextAlarm: action.payload}
     case ACTIONS.SET_BUSY_FLAG:
         return {...state, busy: action.payload}
+    case ACTIONS.TESTING:
+        return {...state, testing: action.payload}
     default:
       return state
   }
@@ -149,7 +153,8 @@ function App() {
     const sse = new EventSource(flask_server_url + '/api/stream')
 
     sse.addEventListener('message', (e) => {
-      console.log(`got a message of type ${e}`)
+      dispatch({type: ACTIONS.TESTING, payload: e.data})
+      
     })
 
     sse.addEventListener('light_change', (e)=> {
@@ -198,7 +203,7 @@ function App() {
       <Stack direction="column"
           spacing={{sx:2, sm: 3, md:5}}
       >
-          <Header level={state.brightness}  nextAlarm={state.nextAlarm}/>
+          <Header level={state.brightness}  nextAlarm={state.nextAlarm} testing={state.testing}/>
           <Routes>
             <Route exact path="/" element={
                 <Light brightness={state.brightness} dispatch={dispatch}/>

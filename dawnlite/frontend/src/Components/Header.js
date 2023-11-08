@@ -10,7 +10,7 @@ import {AppBar,
 import RecycleIcon from '@mui/icons-material/Refresh'
 
 
-const Header = ({level, nextAlarm}) => {
+const Header = ({level, nextAlarm, testing}) => {
 
 
     return (
@@ -23,7 +23,7 @@ const Header = ({level, nextAlarm}) => {
                     </Box>
                     <Box display='flex' flexGrow={1}>
                         <Typography variant="h6" component="div" 
-                        >{nextAlarm}</Typography>
+                        >{testing}</Typography>
                     </Box>
                     <IconButton 
                         size="large"

@@ -14,29 +14,28 @@ import { ACTIONS } from '../App'
 
 const Light = ({dispatch, brightness}) => {
 
-  const dispatchChange = (value) => {
+  const Change = (value) => {
     dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: value})
   }
 
 
   const  newIntensity =  (e,value) => {
     if ((e.type === "mousedown" || e.type === "mousemove") && value === 0) {
-      dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: value})
+      Change(value)
     }
       
   }
 
   const commitedIntensity = (e,value) => {
     if (e.type === "mouseup") {
-      dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: value})
+      Change(value)
     }
     if (e.type === "mousemove" && value === 0) {
-      dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: value})
+      Change(value)
     }
 
   }
 
-  
 
 
  
@@ -55,9 +54,9 @@ const Light = ({dispatch, brightness}) => {
     <Stack>
       <IconButton onClick={() => {
           if (brightness === 0) {
-            dispatchChange(50)
+            Change(50)
           } else {
-            dispatchChange(0)
+            Change(0)
           }
       }}>
       {arrayOfIcons[brightness === 0 ? 0 : 1]}

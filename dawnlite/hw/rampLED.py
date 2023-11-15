@@ -10,6 +10,10 @@ import logging
 LOGGER = logging.getLogger('dawnlite')
 
 
+# this ramps the designated LED
+# the rampflag (stored n redis) hold the number of durection betwen lvel change steps (in seconds)
+# if set to a negative number during a a ramp (by another process), it halts the ramp.
+
 def rampLED(pwm, initialLevel=-1, finalLevel=-1, duration=app.config['RAMP_DURATION']):
     LOGGER.debug(f"In rampLED - initial={initialLevel} final={finalLevel}, duration={duration}")
     # ramp up or down the LED intensity
@@ -50,7 +54,7 @@ def rampLED(pwm, initialLevel=-1, finalLevel=-1, duration=app.config['RAMP_DURAT
         else:
             break
     
-
+    # store the curent state
     state.level = min(100,max(math.floor(currentLevel),0))
     comm.set_state(app, state)
     comm.set_ramping(app,0.0)  #to be sure

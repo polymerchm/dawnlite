@@ -11,7 +11,10 @@ from dawnlite.hw.rampLED import rampLED
 from threading import Thread
 from threading import Event
 
+
 LOGGER = logging.getLogger('dawnlite')
+
+
 
 class StatusLED(Thread):
     def __init__(self, channel):
@@ -84,6 +87,7 @@ class StatusLED(Thread):
     def pulseTrain(self):
         if self.dutyCycle == 0 or self.duration == 0:
             print(f"dutyCycle={self.dutyCycle} or duration={self.duration} invalid")
+            sys.exit(1)
         self.offTime = self.duration*(1-self.dutyCycle)
         self.onTime = self.duration*self.dutyCycle
         if self.numCycles != 0:

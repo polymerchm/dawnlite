@@ -4,7 +4,6 @@ import sys
 
 import socket
 import time
-import signalls 
 from dawnlite import app
 from dawnlite import comm
 import dawnlite.hw.statusLEDControl as StatusLEDControl

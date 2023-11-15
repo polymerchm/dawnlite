@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Pi Dawn</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="manifest" href="/static/manifest.json"> -->
+    <!-- <link rel="icon" type="image/png" href="/static/favicon-32x32.png" sizes="32x32"> -->
+
+  </head>
+
+  <body>
+    <script>
+      var source = new EventSource("{{ url_for('sse.stream') }}");
+      source.addEventListener('greeting', function(event) {
+          var data = JSON.parse(event.data);
+          alert("The server says " + data.message);
+      }, false);
+      source.addEventListener('error', function(event) {
+          alert("Failed to connect to event stream. Is Redis running?");
+      }, false);
+    </script>
+    <<p>Dawnlite API Server</p>
+  </body>
+</html>

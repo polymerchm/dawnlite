@@ -8,7 +8,12 @@ from dawnlite.enums import StatusLightMessage as MSG
 from dawnlite import comm
 from dawnlite import model
 import dawnlite.hw.statusLEDControl as LED
+import queue
+import jsonpickle
 
+commandQueue = queue.Queue()
+redis = comm.redis_cli 
+redisPubSub = redis.pubsub()
 
 LOGGER = logging.getLogger('dawnlite')
 
@@ -21,12 +26,12 @@ LOGGER = logging.getLogger('dawnlite')
 #   white heartbeat (threaded)
 #   pulsed white (2, 4 , or 6) (threaded)
 
-status_queue = app.config['STATUS_LIGHT_QUEUE_KEY']
+
 interpulseDelay = float(app.config['STATUS_LED_INTERPULSE_DELAY'])
 PWM = app.config['STATUS_LED_PWM']
 
 
-
+# convert so that it uses REDIS pubsub to look for a status light message
 
 cycles = {
             MSG.PULSE_2 : 2, 
@@ -39,21 +44,31 @@ def shutdown(*args):
     sys.exit(0)
 
 def stopThread(thread):
+    """
+    this stops the thread from LED
+    """
     if thread.is_alive():
         thread.event.set()
         thread.join()
 
+
+def commandReceived(message):
+    commandQueue.put(jsonpickle.decode(message))
+
 def main():
+    global currentMessage
+    redisPubSub.subscribe(**{'status_led': commandReceived})
+    redisThread = redisPubSub.run_in_thread(sleep_time=0.010, daemon=True)
     # on startup, clear the status queue
-    comm.clearQueue(status_queue)
     statusLED = LED.StatusLED(PWM)
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
     LOGGER.info("starting statusLED daemon")
     while True:
-        msg = comm.receive_message(status_queue, timeout=1) # hold for a 250 ms then cycle
-        if msg == None:
+        if commandQueue.empty():
             continue
+        else:
+            msg = commandQueue.get()
         # process the incomeing message
         if msg == MSG.OFF:
             statusLED.turnOff()

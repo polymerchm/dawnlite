@@ -52,25 +52,26 @@ def main():
 
     while True:
         if  toggle.state == 1:
+            # led controlled from here, so just update the state
             # toggle the light
             LOGGER.debug("toggle light in button")
             rampFlag = comm.get_ramping(app)
             if  rampFlag != 0.0: #if ramping set signal to stop it
                 comm.set_ramping(app,-1.0)
                 time.sleep(2*rampFlag) # wait out an extra cycle of hte ramp loop
-                comm.set_ramping(app,0.0) # set flap to non-ramping
+                comm.set_ramping(app,0.0) # set flag to non-ramping
             state = comm.get_state(app)
             LOGGER.debug(f"on entry state={state}")
             
             if state.level != 0:
-                state.level = 50
+                # state.level = 50
                 state.next_level = 0           
             else:
-                state.level = 0
+                # state.level = 0
                 state.next_level = 50
             state.ramped = False
             comm.set_state(app, state)
-            led.setLevel(updateLevel=True)
+            # led.setLevel(updateLevel=True)
             sendRemoteMessage(RemoteMessage.TOGGLE)
             time.sleep(0.1)
             sendRemoteMessage(RemoteMessage.CLEARALARMTIMER)

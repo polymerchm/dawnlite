@@ -15,9 +15,20 @@ from dawnlite.hw.button_utils import Button
 from dawnlite.hw.ip_utils import get_ip_address
 from dawnlite.hw.mainLEDControl import MainLED
 
+import redis
+import queue
+
 alarm_queue  = dawnlite.app.config['ALARM_QUEUE_KEY']
 remote_queue =  dawnlite.app.config['REMOTE_QUEUE_KEY']
 light_queue = dawnlite.app.config['MAIN_LIGHT_QUEUE_KEY']
+
+remoteQueue = queue.Queue()
+
+
+redis_cli = redis.Redis()
+pubsub = redis_cli.pubsub()
+
+
 
 LOGGER = logging.getLogger('dawnlite')
 AlarmTimer = None # timer will "bind" here
@@ -27,18 +38,27 @@ def shutdown(*args):
     comm.send_message(app,comm.StopMessage(), alarm_queue)
 
 def reschedule_alarms(alarms, wasStopped=False):  
+    upccomingAlarms = []
     dirty = False
     #TODO: try to remove the alarm post duration thingy.
     seconds = 10  if wasStopped else int(dawnlite.app.config['ALARM_POST_DURATION'])
     now = datetime.datetime.now()
     delay = datetime.timedelta(seconds=seconds)
     cutoff = now - delay
+    updatedAlarms = []
     for alarm in alarms:
-        if alarm.next_alarm is not None and alarm.next_alarm < cutoff:
+        # if alarm.next_alarm is not None and alarm.next_alarm < cutoff:
+        if alarm.next_alarm == None or alarm.next_alarm < cutoff:
             dirty = True
             alarm.schedule_next_alarm()
+            dawnlite.updateAlarm(alarm)
+            upccomingAlarms.append(alarm.next_alarm)
     if dirty:
-        model.db.session.commit()
+
+        return sorted(upccomingAlarms)[0]
+    else:
+        return None
+    
 
 def find_active_alarm(alarms):
     now = datetime.datetime.now()
@@ -54,9 +74,8 @@ def find_active_alarm(alarms):
 
 
 
-def configure_light(alarms, led):
+def manageActiveAlarm(alarms, led, state):
     global AlarmTimer
-    state = comm.get_state(app)
     if state.level != 0:  # if light is on, don't bother.
         return
     else:
@@ -66,8 +85,7 @@ def configure_light(alarms, led):
                 state.update(active_alarm=active_alarm.id, next_level=active_alarm.level)
                 comm.set_state(app, state)
                 led.setLevel(updateLevel=True)
-                AlarmTimer = threading.Timer(active_alarm.alarmDuration*60,
-                                                endAlarm, args=[led])
+                AlarmTimer = threading.Timer(active_alarm.alarmDuration*60, endAlarm, args=[led])
                 AlarmTimer.start()
  
 def endAlarm(*args): # called at end of an alarm duration
@@ -94,110 +112,149 @@ def stopAlarmAndRamp():
         time.sleep(rampFlag) # wait out an extra cycle of hte ramp loop
         comm.set_ramping(app,0.0) # set flap to non-ramping
     
+def manageRemoteQueue(state,led):
+    """
+    Process messages on the Remote Queue
+    Return true if the light level has changed
+
+    Note to self '0' is falsey.   Must test for 'None'
+    """
+    global AlarmTimer
+    msg = comm.receive_message(remote_queue, timeout=1)
+    if msg == None:
+        return None
+    else:
+        LOGGER.debug(f"receved valid remote message, state is {state}")
+        if isinstance(msg, RemoteMessage):
+            # cancel the alarm if one is in progress.
+            stopAlarmAndRamp()
+            if msg == RemoteMessage.BRIGHTER:
+                if state.level == 0:
+                    state.update(next_level = 10, ramped = False)
+                elif state.level == 100:
+                    pass
+                else:
+                    newLevel = min(state.level + 10, 100)
+                    state.update(next_level = newLevel, ramped = False)    
+            elif msg == RemoteMessage.DARKER:
+                if state.level == 0:
+                    pass
+                else:
+                    newLevel = max(state.level - 10, 0)
+                    state.update(next_level=newLevel, ramped=False)
+            elif msg == RemoteMessage.TOGGLE:
+                if state.level != 0:
+                    state.update(next_level=0, ramped=True)
+                else:
+                    state.update(next_level=50, ramped=True)
+            elif msg == RemoteMessage.OFF:
+                state.update(next_level=0, ramped=False)
+            elif msg == RemoteMessage.LOW:
+                state.update(next_level = 25, ramped = True)
+            elif msg == RemoteMessage.MEDIUM:
+                state.update(next_level = 50, ramped = True)
+            elif msg == RemoteMessage.HIGH:
+                state.update(next_level = 100, ramped = True)
+            elif msg == RemoteMessage.CLEARALARMTIMER:
+                if AlarmTimer != None:
+                    AlarmTimer.cancel()
+                    AlarmTimer = None
+                    state.update(active_alarm='none')
+                    comm.set_state(app,state)
+                return None
+            else:
+                LOGGER.error(f"invalid message {msg}")
+                comm.clearQueue(remote_queue)
+                return False
+            comm.set_state(app,state)
+            led.setLevel(updateLevel=True)
+            return state.next_level
+
+
+
+def manageAlarmQueue(state, led):
+    """
+    Manages on the Alarm Queue
+    If this is  light  change message, send new level
+    """
+    msg = comm.receive_message(alarm_queue, timeout=1)
+    if msg == None:
+        return None
+    elif isinstance(msg, comm.StopMessage):
+        return None
+    elif isinstance(msg, comm.SetLightStateMessage):
+        stopAlarmAndRamp()
+        state.update(next_level=msg.level, ramped=msg.ramped)
+        comm.set_state(app,state)
+        led.setLevel(updateLevel=True)
+        return {"level": msg.level, 'ramped': msg.ramped}
+    elif isinstance(msg, comm.ReloadAlarmsMessage):
+        with app.app_context():
+            model.db.session.rollback()
+            alarms = model.Alarm.query.order_by(model.Alarm.time).all()
+        return {"next_alarm": reschedule_alarms(alarms, wasStopped=msg.wasStopped)}
+
+def manageLightQueue(state, led):
+    msg = comm.receive_message(light_queue, timeout=1)
+    if msg == None:
+        return None
+    else:
+        stopAlarmAndRamp()
+        state.update(next_level=msg.level, ramped=msg.ramped)
+        comm.set_state(app,state)
+        led.setLevel(updateLevel=True)
+        return {"level": msg.level, 'ramped': msg.ramped}
 
 def main():
     global AlarmTimer
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
-    alarms = model.Alarm.query.order_by(model.Alarm.time).all()
-    LOGGER.debug(f"initial state of alarms = {alarms}")
+   
+
     led = MainLED()
-    oldState = None
 
     LOGGER.info("starting main daemon")
     state = comm.get_state(app)
     comm.set_ramping(app, 0.0) # set ramping flag to non-ramping
 
+    last_alarm = datetime.datetime(1970,1,1)
+    last_level = 999
     while True:
         state = comm.get_state(app)
+        with app.app_context():
+            alarms = model.Alarm.query.order_by(model.Alarm.time).all()
 
-        # handle the remote 
-        #
-        msg = comm.receive_message(remote_queue, timeout=1)
-        if msg == None:
-            pass
-        else:
-            LOGGER.debug(f"receved valid remote message, state is {state}")
-            if isinstance(msg, RemoteMessage):
-                # cancel the alarm if one is in progress.
-                stopAlarmAndRamp()
-                if msg == RemoteMessage.BRIGHTER:
-                    if state.level == 0:
-                        state.update(next_level = 10, ramped = False)
-                    elif state.level == 100:
-                        pass
-                    else:
-                        newLevel = min(state.level + 10, 100)
-                        state.update(next_level = newLevel, ramped = False)    
-                elif msg == RemoteMessage.DARKER:
-                    if state.level == 0:
-                        pass
-                    else:
-                        newLevel = max(state.level - 10, 0)
-                        state.update(next_level=newLevel, ramped=False)
-                elif msg == RemoteMessage.TOGGLE:
-                    if state.level != 0:
-                        state.update(next_level=0, ramped=True)
-                    else:
-                        state.update(next_level=50)
-                elif msg == RemoteMessage.OFF:
-                    state.update(next_level=0, ramped=False)
-                elif msg == RemoteMessage.LOW:
-                    state.update(next_level = 25, ramped = True)
-                elif msg == RemoteMessage.MEDIUM:
-                    state.update(next_level = 50, ramped = True)
-                elif msg == RemoteMessage.HIGH:
-                    state.update(next_level = 100, ramped = True)
-                elif msg == RemoteMessage.CLEARALARMTIMER:
-                    if AlarmTimer != None:
-                        AlarmTimer.cancel()
-                        AlarmTimer = None
-                        state.update(active_alarm='none')
-                        comm.set_state(app,state)
-                    continue 
-                else:
-                    LOGGER.error(f"invalid message {msg}")
-                    comm.clearQueue(remote_queue)
-                    continue
-                comm.set_state(app,state)
-                led.setLevel(updateLevel=True)
-                continue
-            else:
-                pass # it's not a valid message in this queue
-
+        # handle the remote and buttons
+        result = manageRemoteQueue(state,led)
+        if result != None and result != last_level:
+            last_level = result
+            print(f" Remote queue - new level is {result}")
+        
         #handle the alarms
         #
-        msg = comm.receive_message(alarm_queue, timeout=1)
-        if msg == None:
-            pass
-        elif isinstance(msg, comm.StopMessage):
-            break
-        elif isinstance(msg, comm.SetLightStateMessage):
-            stopAlarmAndRamp()
-            state.update(next_level=msg.level, ramped=msg.ramped)
-            comm.set_state(app,state)
-            led.setLevel(updateLevel=True)
+        result = manageAlarmQueue(state, led)
+        if result  == None:
             continue
-        elif isinstance(msg, comm.ReloadAlarmsMessage):
-            model.db.session.rollback()
-            alarms = model.Alarm.query.order_by(model.Alarm.time).all()
-            reschedule_alarms(alarms, wasStopped=msg.wasStopped)
-            # continue        
-          
-        #check the light queue
+        elif "level" in result.keys() and result["level"] != last_level:
+            print(f"Alarm Queue - new level is {result}")
+            last_level = result["level"]
+        elif "next_alarm" in result.keys() and last_alarm != result['next_alarm']:
+            print(f"AlarmQueue - next alarm to go off {result}")
+            last_alarm = result["next_alarm"]
+        
+        #handle light messages 
         #
-        msg = comm.receive_message(light_queue, timeout=1)
-        if msg == None:
-            pass
-        else:
-            stopAlarmAndRamp()
-            state.update(next_level=msg.level, ramped=msg.ramped)
-            comm.set_state(app,state)
-            led.setLevel(updateLevel=True)
-            # continue
-        # no messages, so check/react to the alarms.
-        configure_light(alarms, led)
-        reschedule_alarms(alarms)
+        result = manageLightQueue(state, led)
+        if result != None:
+            print(f"Light Queue  - new level is {result}")
+
+        #  check/react to the alarms.
+        #
+        manageActiveAlarm(alarms, led, state)
+        result = reschedule_alarms(alarms)
+        if result != None and result != last_alarm:
+            last_alarm = result
+            print(f"ActiveAlarm - next alarm is {result}")
 
 if __name__ == '__main__':
     main()

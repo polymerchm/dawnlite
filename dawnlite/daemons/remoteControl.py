@@ -13,12 +13,13 @@ from dawnlite.enums import StatusLightMessage as STATUS
 from dawnlite.hw.button_utils import Button
 import logging
 
+
 SOCKPATH = "/var/run/lirc/lircd"
 
 #globals
 
 remote_queue = app.config['REMOTE_QUEUE_KEY']
-status_queue = app.config['STATUS_LIGHT_QUEUE_KEY']
+status_key = app.config['STATUS_LIGHT_KEY']
 
 LOGGER = logging.getLogger('dawnlite')
 
@@ -55,7 +56,7 @@ class IRW():
         except: 
             # too many signals, warn the user then pause
             LOGGER.debug("buffer oveload in remote")
-            comm.send_message(app, STATUS.PULSE_6, status_queue)
+            comm.publish('status_led', STATUS.PULSE_6)
             time.sleep(5)
             return -1, -1
 
@@ -65,8 +66,6 @@ def sendRemoteMessage(msg):
 def shutdown(*arg):
     sendRemoteMessage(comm.StopMessage())
     sys.exit(1)
-
-
 
 
 def main():

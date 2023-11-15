@@ -10,7 +10,6 @@ import click
 from flask import Flask, request, jsonify, abort, render_template, Response
 
 from flask_cors import CORS, cross_origin
-import redis
 from dotenv import dotenv_values
 from dawnlite import model
 from dawnlite import comm
@@ -18,7 +17,8 @@ from dawnlite import templates
 from dawnlite.utils import string_or_numeric
 import time
 from datetime import datetime
-
+from queue import Queue
+import threading
 
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -34,38 +34,58 @@ def string_or_numeric(value):
         except:
             return value
 
-def create_app():
+            import requests
 
-    
+
+# from flask import Flask, render_template, request, jsonify, make_response
+# app = Flask(__name__)
+# @app.route('/', methods=['OPTIONS','POST'])
+# def greeting():
+#     if request.method == 'OPTIONS': 
+#         return build_preflight_response()
+#     elif request.method == 'POST': 
+#         req = request.get_json()
+#         # query user with req['id']
+#         # for demonstration, we assume the username to be Eric
+#         return build_actual_response(jsonify({ 'name': 'Eric' }))
+# def build_preflight_response():
+#     response = make_response()
+#     response.headers.add("Access-Control-Allow-Origin", "*")
+#     response.headers.add('Access-Control-Allow-Headers', "*")
+#     response.headers.add('Access-Control-Allow-Methods', "*")
+#     return response
+# def build_actual_response(response):
+#     response.headers.add("Access-Control-Allow-Origin", "*")
+#     return response
+
+
+def create_app():
     app = Flask(__name__, 
                       static_folder=os.path.join(ROOT_PATH, 'frontend', 'static'),
                       template_folder=os.path.join(ROOT_PATH, 'frontend'))
 
-    app.config['CORS_HEADERS'] = 'Content-Type'                  
+                
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}/alarms.db'.format(app.instance_path)
 
   
-    env = dotenv_values('dawnlite/.env.global')
+    env = dotenv_values('dawnlite/.env.global', verbose=True)
     for (key,val) in env.items():
         app.config[key] = string_or_numeric(val)
-
-
-   
 
     app.config['DEBUG'] = True
 
 
     model.db.init_app(app)
     model.db.app = app
-    CORS(app, resources={r"/*": {"origins": "*"}})
-    
-
-
+   
+   
     return app
 
 
 app = create_app()
+CORS(app)
+#cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 
@@ -85,15 +105,52 @@ alarm_queue = app.config['ALARM_QUEUE_KEY']
 #       'Access-Control-Allow-Methods' : '*' }
 
 
+
+redisEventQueue = Queue()
+redis = comm.redis_cli 
+redisPubSub = redis.pubsub()
+
+
+#event form redis caught here
+
+def getRedisMessage(message):
+    # this will setup to handle incoming form Redis and tell streat what to push onto the even
+    redisEventQueue.put(message)
+
+# def redisPubSub_exception_handler(ex, pubsub, thread):
+#     print(f"Redis PubSub Error {ex}")
+#     thread.stop()
+#     thread.join(timeout=1.0)
+#     pubsub.close()
+    
+redisPubSub.subscribe(**{'dawnlite': getRedisMessage})
+redisThread = redisPubSub.run_in_thread(sleep_time=0.010, daemon=True)
+
+
 # sse setups here
+
+def updateAlarm(alarmDict):
+    with app.app_context():
+        alarm = model.db.session.query(model.Alarm.id == alarmDict.id).first()
+        print(f"Alarmdictis {alarmDict}\n query results is {alarmDict} ***")
+        print(type(alarm))
+        #alarm.update_from_dict(alarmDict)
+        model.db.session.commit()
+
 
 @app.route('/api/stream')
 def stream():
     def stream_send():
+        count = 0
         while True:
-            # the decision logic goes in here
+            if redisEventQueue.empty():
+                pass
+            else:
+                item = redisEventQueue.get()
+                yield f"data: {item}\nevent: redis\n\n"
             time.sleep(1)
-            yield f'data: {datetime.now().second}\nevent: message\n\n'
+            count = (count + 1) % 60 # count seconds
+            yield f'data: {count}\nevent: pulse\n\n'
 
 
     return Response(stream_send(), mimetype='text/event-stream')
@@ -108,7 +165,7 @@ def get_alarms():
     return response
 
 
-@app.route('/api/alarm', methods=['POST', 'OPTIONS'])
+@app.route('/api/alarm', methods=['POST'])
 def add_alarm():
     alarm = model.Alarm()
     alarm.update_from_dict(request.json)
@@ -121,7 +178,7 @@ def add_alarm():
     return response
 
 
-@app.route('/api/alarm', methods=['GET'])
+@app.route('/api/alarm/<id>', methods=['GET'])
 def get_alarm(id):
     alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
     if alarm == None:
@@ -131,7 +188,8 @@ def get_alarm(id):
     return response
 
 
-@app.route('/api/alarm', methods=['PATCH', 'OPTIONS'])
+@app.route('/api/alarm', methods=['PATCH'])
+@cross_origin()
 def update_alarm():
     if request.method == "PATCH":
         value = request.json
@@ -147,6 +205,9 @@ def update_alarm():
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
         response = jsonify(alarm.to_dict())
         return response
+    if request.method == "OPTIONS":
+        print("in update - preflight request")
+        return '',204
     else:
         return '', 204
 
@@ -173,7 +234,7 @@ def get_light():
     return response
 
 
-@app.route('/api/light', methods = ['POST', 'OPTIONS'])
+@app.route('/api/light', methods = ['POST'])
 def patch_light():
     if request.method == 'POST':
         # LOGGER.debug(f" data = {request.json}")
@@ -193,8 +254,8 @@ def patch_light():
 
 @app.route('/api/nextAlarm', methods = ['GET'])
 def next_alarm():
-    alarm = model.Alarm.query.order_by(model.Alarm.next_alarm)
-    nextAlarm = "no alarms" if alarm.first() == None else alarm.first().next_alarm
+    nextList = sorted([x.next_alarm for x in  model.Alarm.query.all() if x.next_alarm != None])
+    nextAlarm = "no alarms" if len(nextList) == 0 else nextList[0]
     return jsonify({'alarm' : nextAlarm})
 
 

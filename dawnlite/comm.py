@@ -6,8 +6,10 @@ import datetime
 import dawnlite
 import logging
 import sys
+from dawnlite.utils import string_or_numeric
 
 redis_cli = redis.Redis()
+redisPubSub = redis_cli.pubsub()
 last_message_time = datetime.datetime(1953, 7, 21)
 last_message = ""
 LOGGER = logging.getLogger('dawnlite')
@@ -79,9 +81,6 @@ class State:
 
 
 
-# need to setup the thinks for SSE h
-
-
 @attr.s
 class WiFi:
     address = attr.ib(type=str, default = "")
@@ -123,23 +122,41 @@ def get_state(app):
     if data is None:
         LOGGER.error("no state available, initializing")
         state = State()
-        set_state(state)
+        set_state(app,state)
     else:
         state = jsonpickle.decode(data)
     # LOGGER.debug(f"in get_state state={state}")
     return state
 
+def set_command(obj,key):
+    # store command in the deignated key
+    data = jsonpickle.encode(obj)
+    redis_cli.set(key, data)
+ 
+def get_command(key):
+    # get the key and clear the command 
+    try:
+        data = redis_cli.get(key)
+    except Exception as e:
+        print(f"error, on get, key is {key}, type is {type(key)}\ndata={data} type{type(data)}\nerror is {e}")
+        sys.exit(1)
+    redis_cli.delete(key)
+    if not data is None:
+        data = jsonpickle.decode(data)
+    return data
+    
+
 def get_ramping(app):
-    value = float(redis_cli.get(app.config['RAMPING_KEY']))
+    value = string_or_numeric(redis_cli.get(app.config['RAMPING_KEY']))
     if type(value) != float:
-        LOGGER.error(f'Ramping return non floating point result {value}')
+        LOGGER.error(f'Ramping return non floating point result {value}, tyupe {type(value)}')
         sys.exit(1)
     else:
         return value
 
 def set_ramping(app, value):
     if type(value) != float:
-        LOGGER.error(f'Ramping return non floating point result {value}')
+        LOGGER.error(f'Ramping ryting to set non floating point result {value}, type {type(value)}')
         sys.exit(1)
     else:
          redis_cli.set(app.config['RAMPING_KEY'], value)
@@ -148,6 +165,12 @@ def set_ramping(app, value):
 
 def clearQueue(queName):
     redis_cli.delete(queName)
+
+
+def publish(channel, message):
+    redis_cli.publish(channel, jsonpickle.encode(message))
+
+    
 
 
 if __name__=='__main__':

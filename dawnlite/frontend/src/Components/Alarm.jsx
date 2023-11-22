@@ -23,8 +23,6 @@ const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
     const [createNewAlarmFlag, setCreateNewAlarmFlag] = useState(false)
     const [workingAlarm, setWorkingAlarm] = useState({}) // working alarmObject for entry
     const [overlapTime, setOverlapTime] = useState("")
-
-
     const [invalidEntryOpen, setInvalidEntryOpen] = useState(false)
 
     const testOverlapTime = (alarm, modifying=false) => {
@@ -104,9 +102,7 @@ const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
         // a new alarm box
         // list of current
       
-        <Stack direction="column"
-            spacing={{sx:2, sm: 3, md:5}}
-        >
+        <Stack direction="column" spacing={{sx:2, sm: 3, md:5}}>
            <Accordion expanded={createNewAlarmFlag}>
                 <AccordionSummary
                     // expandIcon={<ExpandMoreIcon />}

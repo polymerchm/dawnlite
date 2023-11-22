@@ -30,8 +30,9 @@ class Alarm(db.Model):
             today = datetime.date.today()
             hour, minute = self.time.split(':')
             hour, minute = int(hour), int(minute)
+            print(f"bitmask in get_next_alarm {self.repeat_days:07b}")
             if self.repeat_days != 0:
-                wd = today.weekday()
+                wd = (today.weekday() + 1) % 7 # monday is 0, .....sunday is 6.   Nedd to shift So sunday is 0
                 day_offsets = [d - wd for d in range(wd, wd+8) if (2**(d%7)) & self.repeat_days]
             else:
                 day_offsets = [0, 1]
@@ -41,7 +42,8 @@ class Alarm(db.Model):
                 if next_alarm > now:
                     return next_alarm
         else:
-            return datetime.datetime(2100, 1,1, 0, 0, 0) # in the far future
+            return datetime.datetime(1970, 1,1, 0, 0, 0) # forward into the past
+        
 
     def repeat2string(self,bitmask):
         out = ""
@@ -99,17 +101,17 @@ class Alarm(db.Model):
         }
 
     
-
-    def update_from_dict(self, data):
+    @classmethod
+    def update_from_dict(cls, row, data):
         LOGGER.debug(f"the data to update with is {data}")
-        self.id = data.get('id', self.id)
-        self.time = data.get('time', self.time if self.time != None else "00:00")
-        self.alarmDuration = data.get('alarmDuration', self.alarmDuration)
-        self.rampDuration = data.get('rampDuration', self.rampDuration)
-        self.enabled = data.get('enabled', self.enabled)
-        self.level = data.get('intensity', self.level)
-        self.repeat_days = data.get('repeatDays', self.repeat_days)
-        self.next_alarm = data.get('next_alarm',)
+        row.id = data.get('id', row.id)
+        row.time = data.get('time', row.time if row.time != None else "00:00")
+        row.alarmDuration = data.get('alarmDuration', row.alarmDuration)
+        row.rampDuration = data.get('rampDuration', row.rampDuration)
+        row.enabled = data.get('enabled', row.enabled)
+        row.level = data.get('intensity', row.level)
+        row.repeat_days = data.get('repeatDays', row.repeat_days)
+        row.next_alarm = data.get('next_alarm',)
 
     def schedule_next_alarm(self):
         self.next_alarm = self.get_next_alarm()

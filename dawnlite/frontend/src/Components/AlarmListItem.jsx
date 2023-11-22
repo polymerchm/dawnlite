@@ -173,12 +173,12 @@ const AlarmListItem = ({ isList,
                             disabled={isList && !modify}
                             onChange={onDurationChange}
                         >
-                            <MenuItem value={2}>2 Minutes</MenuItem>
-                            <MenuItem value={20}>20 Minutes</MenuItem>
-                            <MenuItem value={30}>30 Minutes</MenuItem>
-                            <MenuItem value={45}>45 Minutes</MenuItem>
-                            <MenuItem value={60}>1 hour</MenuItem>
-                            <MenuItem value={120}>2 hours</MenuItem>
+                            <MenuItem id={'duration2'} value={2}>2 Minutes</MenuItem>
+                            <MenuItem id={'duration20'} value={20}>20 Minutes</MenuItem>
+                            <MenuItem id={'duration30'} value={30}>30 Minutes</MenuItem>
+                            <MenuItem id={'duration45'} value={45}>45 Minutes</MenuItem>
+                            <MenuItem id={'duration60'} value={60}>1 hour</MenuItem>
+                            <MenuItem id={'duration120'} alue={120}>2 hours</MenuItem>
                         </Select>
                     </Grid>
                     <Grid item xs={2} />
@@ -190,10 +190,10 @@ const AlarmListItem = ({ isList,
                             onChange={onIntensityChange}
                             disabled={isList && !modify}
                         >
-                            <MenuItem value={25}>25%</MenuItem>
-                            <MenuItem value={50}>50%</MenuItem>
-                            <MenuItem value={75}>75%</MenuItem>
-                            <MenuItem value={100}>100%</MenuItem>
+                            <MenuItem id={'intensity25'} value={25}>25%</MenuItem>
+                            <MenuItem id={'inensity50'} value={50}>50%</MenuItem>
+                            <MenuItem id={'intensity75'} value={75}>75%</MenuItem>
+                            <MenuItem id={'intensity100'} value={100}>100%</MenuItem>
                         </Select>
                     </Grid>
                     <Grid item xs={3} />

@@ -12,10 +12,11 @@ from flask import Flask, request, jsonify, abort, render_template, Response
 from flask_cors import CORS, cross_origin
 from dotenv import dotenv_values
 from dawnlite import model
+
 from dawnlite import comm
 from dawnlite import templates
 from dawnlite.utils import string_or_numeric
-import time
+import time, json
 from datetime import datetime
 from queue import Queue
 import threading
@@ -58,6 +59,17 @@ def string_or_numeric(value):
 #     response.headers.add("Access-Control-Allow-Origin", "*")
 #     return response
 
+class BetterTime(json.JSONEncoder):
+    """
+    Deal with stadard Flask jsonify output of datatime objects
+    """
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            str = obj.strftime(r"%a, %b %d, %l:%M%P")
+            return str
+        return super().default(obj)
+
+
 
 def create_app():
     app = Flask(__name__, 
@@ -85,6 +97,9 @@ def create_app():
 
 app = create_app()
 CORS(app)
+
+app.json_encoder = BetterTime # elimiate issue with GMT as standaret output
+
 #cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
@@ -132,9 +147,7 @@ redisThread = redisPubSub.run_in_thread(sleep_time=0.010, daemon=True)
 def updateAlarm(alarmDict):
     with app.app_context():
         alarm = model.db.session.query(model.Alarm.id == alarmDict.id).first()
-        print(f"Alarmdictis {alarmDict}\n query results is {alarmDict} ***")
-        print(type(alarm))
-        #alarm.update_from_dict(alarmDict)
+        model.Alarm.update_from_dict(alarm, alarmDict)
         model.db.session.commit()
 
 
@@ -149,10 +162,9 @@ def stream():
                 item = redisEventQueue.get()
                 yield f"data: {item}\nevent: redis\n\n"
             time.sleep(1)
-            count = (count + 1) % 60 # count seconds
-            yield f'data: {count}\nevent: pulse\n\n'
-
-
+            # count = (count + 1) % 60 # count seconds
+            yield f"data: {datetime.now().strftime('%Y-%m-%dT%I:%M:%S%p')}\nevent: pulse\n\n"
+            
     return Response(stream_send(), mimetype='text/event-stream')
         
 
@@ -168,7 +180,7 @@ def get_alarms():
 @app.route('/api/alarm', methods=['POST'])
 def add_alarm():
     alarm = model.Alarm()
-    alarm.update_from_dict(request.json)
+    model.Alarm.update_from_dict(alarm,request.json)
     alarm.schedule_next_alarm()
     LOGGER.debug(f"adding alarm {alarm}")
     model.db.session.add(alarm)
@@ -198,7 +210,7 @@ def update_alarm():
         if alarm is None:
             LOGGER.info(f"for ID={id}, no alarm found")
             abort(404) 
-        alarm.update_from_dict(value)
+        model.Alarm.update_from_dict(alarm, value)
         alarm.schedule_next_alarm()
         LOGGER.debug(f"updating alarm {alarm}")
         model.db.session.commit()
@@ -256,7 +268,9 @@ def patch_light():
 def next_alarm():
     nextList = sorted([x.next_alarm for x in  model.Alarm.query.all() if x.next_alarm != None])
     nextAlarm = "no alarms" if len(nextList) == 0 else nextList[0]
-    return jsonify({'alarm' : nextAlarm})
+    result = jsonify({'alarm' : nextAlarm})
+    print(result)
+    return result
 
 
 @app.route('/', defaults={'path': ''})

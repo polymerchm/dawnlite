@@ -9,8 +9,12 @@ import {AppBar,
 } from '@mui/material'
 import RecycleIcon from '@mui/icons-material/Refresh'
 
+import plugged from '../assets/plugged_white.png'
+import unplugged from '../assets/unplugged_white.png'
 
-const Header = ({level, nextAlarm}) => {
+
+const Header = ({level, nextAlarm, connected}) => {
+    let connectionImage = connected ? plugged : unplugged
     return (
         <div>
             <AppBar position="static">
@@ -23,6 +27,14 @@ const Header = ({level, nextAlarm}) => {
                         <Typography variant="h6" component="div" 
                         >{nextAlarm}</Typography>
                     </Box>
+                    <Box component="img"
+                            sx={{
+                                height: 40,
+                                width: 40,
+                                maxHeight: { xs:30, md: 40 },
+                                maxWidth: { xs: 30, md: 40 },
+                                
+                            }} src={connectionImage}/>
                     <IconButton 
                         size="large"
                         edge="start"

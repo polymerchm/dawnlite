@@ -1,14 +1,14 @@
 import datetime
 import logging
 import signal
-import subprocess
-import sys
+# import subprocess
+# import sys
 import threading
 import time
 from ast import Pass
 from multiprocessing.managers import RemoteError
 
-import dawnlite
+# import dawnlite
 from dawnlite import app, comm, model
 from dawnlite.enums import RemoteMessage
 from dawnlite.hw.button_utils import Button
@@ -18,51 +18,56 @@ from dawnlite.hw.mainLEDControl import MainLED
 import redis
 import queue
 
-alarm_queue  = dawnlite.app.config['ALARM_QUEUE_KEY']
-remote_queue =  dawnlite.app.config['REMOTE_QUEUE_KEY']
-light_queue = dawnlite.app.config['MAIN_LIGHT_QUEUE_KEY']
+from sqlalchemy import create_engine, select, update, delete
+from sqlalchemy.orm import Session
+
+alarm_queue  = app.config['ALARM_QUEUE_KEY']
+remote_queue =  app.config['REMOTE_QUEUE_KEY']
+light_queue = app.config['MAIN_LIGHT_QUEUE_KEY']
 
 remoteQueue = queue.Queue()
-
 
 redis_cli = redis.Redis()
 pubsub = redis_cli.pubsub()
 
-
+engine = create_engine("sqlite:///instance/alarms.db", future=True)
+Alarm = model.Alarm
 
 LOGGER = logging.getLogger('dawnlite')
 AlarmTimer = None # timer will "bind" here
 
 
+
+
 def shutdown(*args):
     comm.send_message(app,comm.StopMessage(), alarm_queue)
 
-def reschedule_alarms(alarms, wasStopped=False):  
+def reschedule_alarms(alarms, session=None, wasStopped=False):  
+    if session == None:
+        session = Session(Alarm)
     upccomingAlarms = []
     dirty = False
     #TODO: try to remove the alarm post duration thingy.
-    seconds = 10  if wasStopped else int(dawnlite.app.config['ALARM_POST_DURATION'])
+    seconds = 10  if wasStopped else int(app.config['ALARM_POST_DURATION'])
     now = datetime.datetime.now()
     delay = datetime.timedelta(seconds=seconds)
     cutoff = now - delay
     updatedAlarms = []
     for alarm in alarms:
-        # if alarm.next_alarm is not None and alarm.next_alarm < cutoff:
-        if alarm.next_alarm == None or alarm.next_alarm < cutoff:
+        if alarm.next_alarm is not None and alarm.next_alarm < cutoff:
             dirty = True
             alarm.schedule_next_alarm()
-            dawnlite.updateAlarm(alarm)
             upccomingAlarms.append(alarm.next_alarm)
-    if dirty:
 
-        return sorted(upccomingAlarms)[0]
-    else:
-        return None
-    
+        if len(upccomingAlarms) != 0:
+            session.commit()
+        session.close()
+        return sorted(upccomingAlarms) if len(upccomingAlarms) != 0 else None
 
 def find_active_alarm(alarms):
     now = datetime.datetime.now()
     for alarm in alarms:
+
         alarm_time = alarm.next_alarm
         if alarm_time == None:
             continue
@@ -192,7 +197,8 @@ def manageAlarmQueue(state, led):
         with app.app_context():
             model.db.session.rollback()
             alarms = model.Alarm.query.order_by(model.Alarm.time).all()
-        return {"next_alarm": reschedule_alarms(alarms, wasStopped=msg.wasStopped)}
+            value = {"next_alarm": reschedule_alarms(alarms, wasStopped=msg.wasStopped)}
+        return value
 
 def manageLightQueue(state, led):
     msg = comm.receive_message(light_queue, timeout=1)
@@ -216,13 +222,17 @@ def main():
     LOGGER.info("starting main daemon")
     state = comm.get_state(app)
     comm.set_ramping(app, 0.0) # set ramping flag to non-ramping
-
+    last_alarm_refresh = datetime.datetime(1970,1,1)
     last_alarm = datetime.datetime(1970,1,1)
     last_level = 999
     while True:
         state = comm.get_state(app)
-        with app.app_context():
-            alarms = model.Alarm.query.order_by(model.Alarm.time).all()
+        with Session(engine, future=True) as session: 
+            alarms = session.query(Alarm).all()
+            nextAlarms = reschedule_alarms(alarms, session=session)
+            if nextAlarms != None:
+                alarms = session.query(Alarm).all()
+
 
         # handle the remote and buttons
         result = manageRemoteQueue(state,led)

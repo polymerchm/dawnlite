@@ -6,6 +6,16 @@
 		"label": "killdebugger",
 		"type": "shell",
 		"command": "lsof -t -i tcp:5000 | xargs kill -9"
-	}
+	},
+	{
+	"label": "echovars",
+	"command": "echo",
+	"args": [
+	  "${env:USERNAME}",
+	  "workspaceFolder = ${workspaceFolder}"
+	],
+	"type": "shell"
+	}	
+
 	]
 }

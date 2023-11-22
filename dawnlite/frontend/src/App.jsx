@@ -15,6 +15,7 @@ import { Stack,
 } from '@mui/material'
 
 
+
 import {useEffect, useReducer, createContext, useState, useCallback} from 'react'
 
 const flask_server_url = 'http://127.0.0.1:5000'
@@ -48,7 +49,8 @@ export const ACTIONS = {
   FORCE_LIGHT_STATE:      "force light",
   SET_NEXT_ALARM:         "set next alarm",
   SET_BUSY_FLAG:          "set busy flag",
-  PULSE:                  "set pulsee"
+  PULSE:                  "set pulsee",
+  SET_CONNECTED:          "set connected"
 }
 
 
@@ -60,14 +62,30 @@ const initialState = {
   listLoading: false,
   nextAlarm: "",
   busy: false,
-  pulse: 0
+  pulse: Date.now(),
+  connected: true
 }
 
-
+const makeDate = (dateString) => {
+  const parts = dateString.split("T")
+  const dateparts = parts[0].split("-")
+  const timeparts = parts[1].split(":")
+  const year = parseInt(dateparts[0])
+  const month = parseInt(dateparts[1])
+  const day = parseInt(dateparts[2])
+  const ampm = timeparts[2].slice(-2)
+  const hour = ampm === "AM" ? parseInt(timeparts[0]) : parseInt(timeparts[0]) + 12
+  const minutes = parseInt(timeparts[1])
+  const seconds = parseInt(timeparts[2].slice(0,2))
+  // returns milliseconds since epoch
+  return new Date(year, month, day, hour, minutes, seconds).getTime()
+}
 
 function reducer(state, action) {
   let newAlarmList
   let toUpdate
+  let now
+  let pulseDate
   switch (action.type) {
     case ACTIONS.SET_LIGHT_BRIGHTNESS:
       $axios.post('/api/light', {level: action.payload}).catch(err => {console.log(`SET_LIGHT_BRIGHTNESS POST ${err}`)})
@@ -109,7 +127,11 @@ function reducer(state, action) {
     case ACTIONS.SET_BUSY_FLAG:
         return {...state, busy: action.payload}
     case ACTIONS.PULSE:
-        return {...state, pulse: action.payload}
+        pulseDate = makeDate(action.payload)
+        now = Date.now()
+        return {...state, pulse: pulseDate, connected: ((now - pulseDate) < 10000) }
+    case ACTIONS.SET_CONNECTED:
+        return {...state, connected: action.payload}
     default:
       return state
   }
@@ -148,6 +170,8 @@ function App() {
 
 //  this one setups up for the SSE 
   
+
+
   useEffect(() => { // runs on mount 
 
     const sse = new EventSource(flask_server_url + '/api/stream')
@@ -194,6 +218,7 @@ function App() {
     asyncDispatchNextAlarm()
   }, [])
 
+
   //TODO:    determine if the configuration files exist
 
  
@@ -202,7 +227,7 @@ function App() {
       <Stack direction="column"
           spacing={{sx:2, sm: 3, md:5}}
       >
-          <Header level={state.brightness}  nextAlarm={state.nextAlarm}/>
+          <Header level={state.brightness}  nextAlarm={state.nextAlarm} connected={state.connected}/>
           <Routes>
             <Route exact path="/" element={
                 <Light brightness={state.brightness} dispatch={dispatch}/>

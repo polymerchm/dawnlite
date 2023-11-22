@@ -4,12 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
-
-
-
-        
+        {
+            "name": "Attach to Chrome",
+            "port": 9222,
+            "request": "attach",
+            "type": "chrome",
+            "webRoot": "${workspaceFolder}/dawnlite/frontend"
+        },
 
 
         {
@@ -69,8 +70,15 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome",
-            "url": "http://dawnlite.local:3000",
-            "webRoot": "${workspaceFolder}/frontend/build/src"
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/dawnlite/frontend",
+            "sourceMapPathOverrides": {
+                "webpack:///./src/*": "${webRoot}/*"
+            },
+            "runtimeArgs": [
+                "--remote-debugging-port=9222"
+            ],
+            "sourceMaps": true
         }
         
     ]

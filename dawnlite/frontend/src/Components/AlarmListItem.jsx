@@ -44,6 +44,12 @@ const AlarmListItem = ({ isList,
     useEffect(() => {
         if (alarmListItem !== undefined) {
             setWorkingAlarm({...alarmListItem})
+            if (workingAlarm.level === undefined) {
+                setWorkingAlarm({...workingAlarm, level: 100})
+            }
+            if (workingAlarm.duration === undefined) {
+                setWorkingAlarm({...workingAlarm, alarmDuration: 60})
+            }
         }
     }, [alarmListItem])
 
@@ -125,6 +131,8 @@ const AlarmListItem = ({ isList,
 
     const EditableListItem = () => {
         if (!isList || (isList && modify)) {
+      
+
         return (
             <Box>
             <Grid container >

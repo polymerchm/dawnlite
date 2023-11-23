@@ -61,7 +61,8 @@ def string_or_numeric(value):
 
 class BetterTime(json.JSONEncoder):
     """
-    Deal with stadard Flask jsonify output of datatime objects
+    Deal with stadard Flask jsonify output of datatime objects.
+    formatting codes from man page for strftime() on raspberry pi 
     """
     def default(self, obj):
         if isinstance(obj, datetime):
@@ -69,7 +70,17 @@ class BetterTime(json.JSONEncoder):
             return str
         return super().default(obj)
 
+class Flag:
+    def __init__(self, flag=False):
+        self._flag = flag
 
+    @property
+    def busy(self):
+        return self._flag
+    
+    @busy.setter
+    def busy(self,value):
+        self._flag = value
 
 def create_app():
     app = Flask(__name__, 
@@ -113,6 +124,8 @@ LOGGER.setLevel(logging.DEBUG)
 HTTP_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 alarm_queue = app.config['ALARM_QUEUE_KEY']
 
+byPassStream = Flag()
+
 
 # def options (self):
 #     return {'Allow' : 'PUT' }, 200, \
@@ -155,6 +168,8 @@ def updateAlarm(alarmDict):
 def stream():
     def stream_send():
         count = 0
+        if byPassStream.busy:
+            yield "data: none\nevent: bypass\n\n"
         while True:
             if redisEventQueue.empty():
                 pass
@@ -179,6 +194,7 @@ def get_alarms():
 
 @app.route('/api/alarm', methods=['POST'])
 def add_alarm():
+    byPassStream.busy = True
     alarm = model.Alarm()
     model.Alarm.update_from_dict(alarm,request.json)
     alarm.schedule_next_alarm()
@@ -187,6 +203,7 @@ def add_alarm():
     model.db.session.commit()
     comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
     response = jsonify(alarm.to_dict())
+    byPassStream.busy =  False
     return response
 
 
@@ -204,6 +221,7 @@ def get_alarm(id):
 @cross_origin()
 def update_alarm():
     if request.method == "PATCH":
+        byPassStream.busy = True
         value = request.json
         id = value.get('id')
         alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
@@ -216,9 +234,9 @@ def update_alarm():
         model.db.session.commit()
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
         response = jsonify(alarm.to_dict())
+        byPassStream.busy = False
         return response
     if request.method == "OPTIONS":
-        print("in update - preflight request")
         return '',204
     else:
         return '', 204
@@ -229,13 +247,15 @@ def delete_alarm(id):
     LOGGER.debug(f"method {request.method}")
     LOGGER.debug(f"deleting record {id}")
     if request.method == "DELETE":
+        byPassStream.busy = True
         alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
         if alarm == None:
             LOGGER.info(f"for ID={id}, no alarm found")
             abort(404)
         model.db.session.delete(alarm)
         model.db.session.commit()
-        comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)            
+        comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)    
+        byPassStream.busy = False           
     return '',204
 
 
@@ -269,7 +289,6 @@ def next_alarm():
     nextList = sorted([x.next_alarm for x in  model.Alarm.query.all() if x.next_alarm != None])
     nextAlarm = "no alarms" if len(nextList) == 0 else nextList[0]
     result = jsonify({'alarm' : nextAlarm})
-    print(result)
     return result
 
 

@@ -30,7 +30,6 @@ class Alarm(db.Model):
             today = datetime.date.today()
             hour, minute = self.time.split(':')
             hour, minute = int(hour), int(minute)
-            print(f"bitmask in get_next_alarm {self.repeat_days:07b}")
             if self.repeat_days != 0:
                 wd = (today.weekday() + 1) % 7 # monday is 0, .....sunday is 6.   Nedd to shift So sunday is 0
                 day_offsets = [d - wd for d in range(wd, wd+8) if (2**(d%7)) & self.repeat_days]

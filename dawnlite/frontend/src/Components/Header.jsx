@@ -25,7 +25,7 @@ const Header = ({level, nextAlarm, connected}) => {
                     </Box>
                     <Box display='flex' flexGrow={1}>
                         <Typography variant="h6" component="div" 
-                        >{nextAlarm}</Typography>
+                        >next alarm - {nextAlarm}</Typography>
                     </Box>
                     <Box component="img"
                             sx={{

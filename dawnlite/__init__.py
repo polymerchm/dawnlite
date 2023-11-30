@@ -1,14 +1,13 @@
 import sys
 import logging
-import errno
+# import errno
 from pickle import TRUE
-import subprocess
+# import subprocess
 import os
 import sys
 
-import click
+# import click
 from flask import Flask, request, jsonify, abort, render_template, Response
-
 from flask_cors import CORS, cross_origin
 from dotenv import dotenv_values
 from dawnlite import model
@@ -19,7 +18,10 @@ from dawnlite.utils import string_or_numeric
 import time, json
 from datetime import datetime
 from queue import Queue
-import threading
+# import threading
+# import jsonpickle
+from flask_sse import sse
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -37,27 +39,6 @@ def string_or_numeric(value):
 
             import requests
 
-
-# from flask import Flask, render_template, request, jsonify, make_response
-# app = Flask(__name__)
-# @app.route('/', methods=['OPTIONS','POST'])
-# def greeting():
-#     if request.method == 'OPTIONS': 
-#         return build_preflight_response()
-#     elif request.method == 'POST': 
-#         req = request.get_json()
-#         # query user with req['id']
-#         # for demonstration, we assume the username to be Eric
-#         return build_actual_response(jsonify({ 'name': 'Eric' }))
-# def build_preflight_response():
-#     response = make_response()
-#     response.headers.add("Access-Control-Allow-Origin", "*")
-#     response.headers.add('Access-Control-Allow-Headers', "*")
-#     response.headers.add('Access-Control-Allow-Methods', "*")
-#     return response
-# def build_actual_response(response):
-#     response.headers.add("Access-Control-Allow-Origin", "*")
-#     return response
 
 class BetterTime(json.JSONEncoder):
     """
@@ -97,6 +78,7 @@ def create_app():
         app.config[key] = string_or_numeric(val)
 
     app.config['DEBUG'] = True
+    
 
 
     model.db.init_app(app)
@@ -109,9 +91,11 @@ def create_app():
 app = create_app()
 CORS(app)
 
-app.json_encoder = BetterTime # elimiate issue with GMT as standaret output
+app.json_encoder = BetterTime # elimiate issue with GMT as standard output
 
-#cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+app.config["REDIS_URL"] = "redis://localhost:6379"
+CORS(sse)
+app.register_blueprint(sse, url_prefix='/api/stream')
 
 
 
@@ -126,11 +110,17 @@ alarm_queue = app.config['ALARM_QUEUE_KEY']
 
 byPassStream = Flag()
 
+scheduler = BackgroundScheduler()
 
-# def options (self):
-#     return {'Allow' : 'PUT' }, 200, \
-#     { 'Access-Control-Allow-Origin': '*', \
-#       'Access-Control-Allow-Methods' : '*' }
+
+
+
+# def pulse():
+#     with app.app_context():
+#         sse.publish({'type': "hello message", "value": "Hi there"})
+
+# scheduler.add_job(pulse, 'interval', seconds=1)
+# scheduler.start()
 
 
 
@@ -142,14 +132,9 @@ redisPubSub = redis.pubsub()
 #event form redis caught here
 
 def getRedisMessage(message):
-    # this will setup to handle incoming form Redis and tell streat what to push onto the even
-    redisEventQueue.put(message)
+    # this will setup to handle incoming form Redis and tell stream what to push onto the even
+    redisEventQueue.put(message['data'])
 
-# def redisPubSub_exception_handler(ex, pubsub, thread):
-#     print(f"Redis PubSub Error {ex}")
-#     thread.stop()
-#     thread.join(timeout=1.0)
-#     pubsub.close()
     
 redisPubSub.subscribe(**{'dawnlite': getRedisMessage})
 redisThread = redisPubSub.run_in_thread(sleep_time=0.010, daemon=True)
@@ -164,23 +149,14 @@ def updateAlarm(alarmDict):
         model.db.session.commit()
 
 
-@app.route('/api/stream')
+
+
+
+@app.route('/api/pulse')
 def stream():
-    def stream_send():
-        count = 0
-        if byPassStream.busy:
-            yield "data: none\nevent: bypass\n\n"
-        while True:
-            if redisEventQueue.empty():
-                pass
-            else:
-                item = redisEventQueue.get()
-                yield f"data: {item}\nevent: redis\n\n"
-            time.sleep(1)
-            # count = (count + 1) % 60 # count seconds
-            yield f"data: {datetime.now().strftime('%Y-%m-%dT%I:%M:%S%p')}\nevent: pulse\n\n"
-            
-    return Response(stream_send(), mimetype='text/event-stream')
+    sse.publish({'type': 'pulse', 'message': 'hi'})
+    return '',200
+
         
 
 
@@ -204,6 +180,7 @@ def add_alarm():
     comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
     response = jsonify(alarm.to_dict())
     byPassStream.busy =  False
+    sse.publish({'type': 'next alarm', 'value': alarm_queue})
     return response
 
 
@@ -235,6 +212,7 @@ def update_alarm():
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
         response = jsonify(alarm.to_dict())
         byPassStream.busy = False
+        sse.publish({'type': 'updated alarm', 'value': alarm.id})
         return response
     if request.method == "OPTIONS":
         return '',204
@@ -255,6 +233,7 @@ def delete_alarm(id):
         model.db.session.delete(alarm)
         model.db.session.commit()
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)    
+        sse.publish({'type': 'deleted alarm', 'value': id})
         byPassStream.busy = False           
     return '',204
 
@@ -280,6 +259,7 @@ def patch_light():
                 state.update(next_level=next_level)
                 comm.set_state(app,state)
                 comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
+                sse.publish({'type': 'light message', 'value': state.next_level})
             return jsonify({'level': next_level})
     else:
         return '', 204
@@ -289,6 +269,7 @@ def next_alarm():
     nextList = sorted([x.next_alarm for x in  model.Alarm.query.all() if x.next_alarm != None])
     nextAlarm = "no alarms" if len(nextList) == 0 else nextList[0]
     result = jsonify({'alarm' : nextAlarm})
+    sse.publish({'type': 'next alarm', 'value': nextAlarm})
     return result
 
 

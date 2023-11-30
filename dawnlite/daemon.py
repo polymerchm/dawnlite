@@ -17,6 +17,7 @@ from dawnlite.hw.mainLEDControl import MainLED
 
 import redis
 import queue
+import json
 
 from sqlalchemy import create_engine, select, update, delete
 from sqlalchemy.orm import Session
@@ -173,6 +174,7 @@ def manageRemoteQueue(state,led):
                 return False
             comm.set_state(app,state)
             led.setLevel(updateLevel=True)
+            comm.publish('dawnlite', f'{{"level": {state.next_level}}}')
             return state.next_level
 
 

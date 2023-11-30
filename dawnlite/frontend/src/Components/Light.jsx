@@ -64,8 +64,8 @@ const Light = ({dispatch, brightness}) => {
         <Box m={5}>
         { brightness !== 0   ? 
         <Slider
-          // defaultValue={defaultValue}
-          value={brightness}
+          key={`slider-${brightness}`}
+          defaultValue={brightness}
           step={5}
           valueLabelDisplay="auto"
           marks={[

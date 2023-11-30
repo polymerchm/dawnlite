@@ -174,23 +174,31 @@ function App() {
 
   useEffect(() => { // runs on mount 
 
-    const sse = new EventSource(flask_server_url + '/api/stream')
+    const sse = new EventSource('/api/stream')
 
-    sse.addEventListener('pulse', (e) => {
-      dispatch({type: ACTIONS.PULSE, payload: e.data})
-    })
+    sse.onmessage = (e) => {
+      console.log(e)
+    }
+
+
+    
+
+    // sse.addEventListener('pulse', (e) => {
+    //   dispatch({type: ACTIONS.PULSE, payload: e.data})
+    // })
 
     sse.addEventListener('light_change', (e)=> {
+      console.log(e)
       dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: e.value})
     })
 
-    sse.addEventListener('next_alarm', (e) => {
-      dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: e.data})
-    })
+    // sse.addEventListener('next_alarm', (e) => {
+    //   dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: e.data})
+    // })
 
     sse.onerror = (e) => {
       console.log(`On Error Fired ${e}`)
-      sse.close()
+      // sse.close()
     }
 
     return (e) => {

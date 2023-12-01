@@ -1,11 +1,15 @@
 
 import './App.css'
 
+import React from 'react'
+
 import Header from './Components/Header'
 import Light from './Components/Light'
 import Alarm from './Components/Alarm'
 import Footer from './Components/Footer'
 import axios from 'axios'
+import { isEqual } from './Components/isEqual'
+
 
 
 import {  Routes, 
@@ -16,7 +20,7 @@ import { Stack,
 
 
 
-import {useEffect, useReducer, createContext, useState, useCallback} from 'react'
+import {useEffect, useReducer, createContext, useState, useCallback, useRef} from 'react'
 
 const flask_server_url = 'http://127.0.0.1:5000'
 
@@ -143,6 +147,10 @@ function App() {
 
   const [state, dispatch] = useReducer(reducer, initialState)
   const [busy, setBusy] = useState(false)
+  const lastMessage = useRef({})
+
+
+
   
 
   const asyncDispatch = () => {
@@ -173,23 +181,26 @@ function App() {
 
 
   useEffect(() => { // runs on mount 
-
+    
+    
     const sse = new EventSource('/api/stream')
 
     sse.onmessage = (e) => {
-      console.log(e)
+      let jsonData = JSON.parse(e.data)
+      if (!isEqual(jsonData,lastMessage.current)) {
+        console.log(jsonData)
+        if (jsonData['type'] === 'light change') {
+          dispatch({ type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: jsonData['value'] })
+        }
+      } 
+      lastMessage.current = jsonData
     }
 
 
-    
-
-    // sse.addEventListener('pulse', (e) => {
-    //   dispatch({type: ACTIONS.PULSE, payload: e.data})
-    // })
-
     sse.addEventListener('light_change', (e)=> {
       console.log(e)
-      dispatch({type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: e.value})
+  
+c
     })
 
     // sse.addEventListener('next_alarm', (e) => {
@@ -205,13 +216,11 @@ function App() {
       sse.close()
     }
 
-  })
+  },[]  )
 
 
 
   useEffect(() => { // only runs on initial call, set things up
-    console.log("in the  useeffect")
-
     async function getLightInfo() {
       try {
         let response = await $axios.get('/api/light')
@@ -221,6 +230,7 @@ function App() {
         console.log("in useEffect getLightInfo",err)
       }
     }
+
     getLightInfo()
     asyncDispatch()
     asyncDispatchNextAlarm()

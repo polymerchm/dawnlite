@@ -56,7 +56,7 @@ class IRW():
         except: 
             # too many signals, warn the user then pause
             LOGGER.debug("buffer oveload in remote")
-            comm.publish('status_led', STATUS.PULSE_6)
+            # comm.publish('status_led', STATUS.PULSE_6)
             time.sleep(5)
             return -1, -1
 

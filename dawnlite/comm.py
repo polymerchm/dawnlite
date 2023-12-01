@@ -167,8 +167,9 @@ def clearQueue(queName):
     redis_cli.delete(queName)
 
 
-def publish(channel, message):
-    redis_cli.publish(channel, jsonpickle.encode(message))
+def publish(channel, message, pickle=False):
+    output = message if pickle else jsonpickle.encode(message)
+    redis_cli.publish(channel, output)
 
     
 

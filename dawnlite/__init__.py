@@ -133,7 +133,13 @@ redisPubSub = redis.pubsub()
 
 def getRedisMessage(message):
     # this will setup to handle incoming form Redis and tell stream what to push onto the even
-    redisEventQueue.put(message['data'])
+    data = message['data']
+    try:
+        out = json.loads(json.loads(data))
+    except:
+        out = data
+    with app.app_context():
+        sse.publish(out)
 
     
 redisPubSub.subscribe(**{'dawnlite': getRedisMessage})
@@ -255,11 +261,10 @@ def patch_light():
            sys.exit(1)
         else:
             next_level = int(request.json.get('level'))
-            if  next_level != state.level:
-                state.update(next_level=next_level)
-                comm.set_state(app,state)
-                comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
-                sse.publish({'type': 'light message', 'value': state.next_level})
+            state.update(next_level=next_level)
+            comm.set_state(app,state)
+            comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
+            sse.publish({'type': 'light change', 'value': state.next_level})
             return jsonify({'level': next_level})
     else:
         return '', 204

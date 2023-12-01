@@ -21,6 +21,7 @@ import json
 
 from sqlalchemy import create_engine, select, update, delete
 from sqlalchemy.orm import Session
+from dawnlite.utils import debounce
 
 alarm_queue  = app.config['ALARM_QUEUE_KEY']
 remote_queue =  app.config['REMOTE_QUEUE_KEY']
@@ -37,6 +38,12 @@ Alarm = model.Alarm
 LOGGER = logging.getLogger('dawnlite')
 AlarmTimer = None # timer will "bind" here
 
+def call_sse(arg, wait=1):
+    @debounce(wait)
+    def callit(arg):
+        jsonified = json.dumps(arg)
+        comm.publish('dawnlite', jsonified)
+    callit(arg)
 
 
 
@@ -141,26 +148,34 @@ def manageRemoteQueue(state,led):
                     pass
                 else:
                     newLevel = min(state.level + 10, 100)
-                    state.update(next_level = newLevel, ramped = False)    
+                    state.update(next_level = newLevel, ramped = False) 
+                    call_sse({'type': 'light change', 'value': newLevel})
             elif msg == RemoteMessage.DARKER:
                 if state.level == 0:
                     pass
                 else:
                     newLevel = max(state.level - 10, 0)
                     state.update(next_level=newLevel, ramped=False)
+                    call_sse({'type': 'light change', 'value': newLevel})
             elif msg == RemoteMessage.TOGGLE:
                 if state.level != 0:
-                    state.update(next_level=0, ramped=True)
+                    newLevel = 0
                 else:
-                    state.update(next_level=50, ramped=True)
+                    newLevel = 50
+                state.update(next_level=newLevel, ramped=True)
+                call_sse({'type': 'light change', 'value': newLevel})
             elif msg == RemoteMessage.OFF:
                 state.update(next_level=0, ramped=False)
+                call_sse({'type': 'light change', 'value': 0})
             elif msg == RemoteMessage.LOW:
                 state.update(next_level = 25, ramped = True)
+                call_sse({'type': 'light change', 'value': 25})
             elif msg == RemoteMessage.MEDIUM:
                 state.update(next_level = 50, ramped = True)
+                call_sse({'type': 'light change', 'value': 50})
             elif msg == RemoteMessage.HIGH:
                 state.update(next_level = 100, ramped = True)
+                call_sse({'type': 'light change', 'value': 100})
             elif msg == RemoteMessage.CLEARALARMTIMER:
                 if AlarmTimer != None:
                     AlarmTimer.cancel()
@@ -174,7 +189,7 @@ def manageRemoteQueue(state,led):
                 return False
             comm.set_state(app,state)
             led.setLevel(updateLevel=True)
-            comm.publish('dawnlite', f'{{"level": {state.next_level}}}')
+            # comm.publish('dawnlite', f'{{"level": {state.next_level}}}')
             return state.next_level
 
 
@@ -211,6 +226,7 @@ def manageLightQueue(state, led):
         state.update(next_level=msg.level, ramped=msg.ramped)
         comm.set_state(app,state)
         led.setLevel(updateLevel=True)
+        call_sse({'type': 'light change', 'value': msg.level})
         return {"level": msg.level, 'ramped': msg.ramped}
 
 def main():

@@ -57,7 +57,7 @@ def commandReceived(message):
 
 def main():
     global currentMessage
-    redisPubSub.subscribe(**{'status_led': commandReceived})
+    # redisPubSub.subscribe(**{'status_led': commandReceived})
     redisThread = redisPubSub.run_in_thread(sleep_time=0.010, daemon=True)
     # on startup, clear the status queue
     statusLED = LED.StatusLED(PWM)

@@ -268,6 +268,23 @@ def patch_light():
             return jsonify({'level': next_level})
     else:
         return '', 204
+    
+
+@app.route('/api/synclight', methods = ['POST'])
+def sync_light():
+    state = comm.get_state(app)
+    if request.json == {}:
+        LOGGER.error(f"request is empty")
+        sys.exit(1)
+    else:
+        level = int(request.json.get('level'))
+        # state.update(next_level=next_level)
+        # comm.set_state(app,state)
+        # comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
+        sse.publish({'type': 'sync light', 'value': level})
+        return jsonify({'level': level})
+
+
 
 @app.route('/api/nextAlarm', methods = ['GET'])
 def next_alarm():

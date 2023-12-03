@@ -149,33 +149,33 @@ def manageRemoteQueue(state,led):
                 else:
                     newLevel = min(state.level + 10, 100)
                     state.update(next_level = newLevel, ramped = False) 
-                    call_sse({'type': 'light change', 'value': newLevel})
+                    call_sse({'type': 'sync light', 'value': newLevel})
             elif msg == RemoteMessage.DARKER:
                 if state.level == 0:
                     pass
                 else:
                     newLevel = max(state.level - 10, 0)
                     state.update(next_level=newLevel, ramped=False)
-                    call_sse({'type': 'light change', 'value': newLevel})
+                    call_sse({'type': 'sync light', 'value': newLevel})
             elif msg == RemoteMessage.TOGGLE:
                 if state.level != 0:
                     newLevel = 0
                 else:
                     newLevel = 50
                 state.update(next_level=newLevel, ramped=True)
-                call_sse({'type': 'light change', 'value': newLevel})
+                call_sse({'type': 'sync light', 'value': newLevel})
             elif msg == RemoteMessage.OFF:
                 state.update(next_level=0, ramped=False)
-                call_sse({'type': 'light change', 'value': 0})
+                call_sse({'type': 'sync light', 'value': 0})
             elif msg == RemoteMessage.LOW:
                 state.update(next_level = 25, ramped = True)
-                call_sse({'type': 'light change', 'value': 25})
+                call_sse({'type': 'sync light', 'value': 25})
             elif msg == RemoteMessage.MEDIUM:
                 state.update(next_level = 50, ramped = True)
-                call_sse({'type': 'light change', 'value': 50})
+                call_sse({'type': 'sync light', 'value': 50})
             elif msg == RemoteMessage.HIGH:
                 state.update(next_level = 100, ramped = True)
-                call_sse({'type': 'light change', 'value': 100})
+                call_sse({'type': 'sync light', 'value': 100})
             elif msg == RemoteMessage.CLEARALARMTIMER:
                 if AlarmTimer != None:
                     AlarmTimer.cancel()
@@ -243,6 +243,8 @@ def main():
     last_alarm_refresh = datetime.datetime(1970,1,1)
     last_alarm = datetime.datetime(1970,1,1)
     last_level = 999
+    for key in [alarm_queue, remote_queue, light_queue]:
+        comm.clearQueue(key)
     while True:
         state = comm.get_state(app)
         with Session(engine, future=True) as session: 
@@ -262,7 +264,7 @@ def main():
         #
         result = manageAlarmQueue(state, led)
         if result  == None:
-            continue
+            pass
         elif "level" in result.keys() and result["level"] != last_level:
             print(f"Alarm Queue - new level is {result}")
             last_level = result["level"]

@@ -189,10 +189,7 @@ function App() {
       let jsonData = JSON.parse(e.data)
       if (!isEqual(jsonData,lastMessage.current)) {
         console.log(jsonData)
-        let type = 'sync light'
-        if (typographyClasses === 'light change') {
-          dispatch({ type: ACTIONS.SET_LIGHT_BRIGHTNESS, payload: jsonData['value'] })
-        } else if (type === 'sync light') {
+        if (jsonData['type'] === 'sync light') {
           dispatch({type: ACTIONS.FORCE_LIGHT_STATE, payload: jsonData['value']})
         }
       } 

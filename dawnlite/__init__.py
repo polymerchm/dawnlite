@@ -6,7 +6,7 @@ from pickle import TRUE
 import os
 import sys
 
-# import click
+
 from flask import Flask, request, jsonify, abort, render_template, Response
 from flask_cors import CORS, cross_origin
 from dotenv import dotenv_values
@@ -37,7 +37,7 @@ def string_or_numeric(value):
         except:
             return value
 
-            import requests
+
 
 
 class BetterTime(json.JSONEncoder):
@@ -160,7 +160,7 @@ def updateAlarm(alarmDict):
 
 @app.route('/api/pulse')
 def stream():
-    sse.publish({'type': 'pulse', 'message': 'hi'})
+    sse.publish({'type': 'pulse', 'message': 'hi','caller': 'pulse'})
     return '',200
 
         
@@ -186,7 +186,7 @@ def add_alarm():
     comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
     response = jsonify(alarm.to_dict())
     byPassStream.busy =  False
-    sse.publish({'type': 'next alarm', 'value': alarm_queue})
+    sse.publish({'type': 'next alarm', 'value': alarm.next_alarm, 'caller': 'add_alarm'})
     return response
 
 
@@ -218,7 +218,7 @@ def update_alarm():
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
         response = jsonify(alarm.to_dict())
         byPassStream.busy = False
-        sse.publish({'type': 'updated alarm', 'value': alarm.id})
+        sse.publish({'type': 'updated alarm', 'value': alarm.id, 'caller': 'update_alarm'})
         return response
     if request.method == "OPTIONS":
         return '',204
@@ -232,6 +232,7 @@ def delete_alarm(id):
     LOGGER.debug(f"deleting record {id}")
     if request.method == "DELETE":
         byPassStream.busy = True
+        sse.publish({type: "alarm to be deleted", "value": id, 'caller': 'delete_alarm'})
         alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
         if alarm == None:
             LOGGER.info(f"for ID={id}, no alarm found")
@@ -239,7 +240,7 @@ def delete_alarm(id):
         model.db.session.delete(alarm)
         model.db.session.commit()
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)    
-        sse.publish({'type': 'deleted alarm', 'value': id})
+        sse.publish({'type': 'deleted alarm', 'value': id, 'caller': 'delete_alarm'})
         byPassStream.busy = False           
     return '',204
 
@@ -264,7 +265,7 @@ def patch_light():
             state.update(next_level=next_level)
             comm.set_state(app,state)
             comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
-            sse.publish({'type': 'light change', 'value': state.next_level})
+            sse.publish({'type': 'light change', 'value': state.next_level, 'caller': 'patch_light'})
             return jsonify({'level': next_level})
     else:
         return '', 204
@@ -281,7 +282,7 @@ def sync_light():
         # state.update(next_level=next_level)
         # comm.set_state(app,state)
         # comm.send_message(app,comm.SetLightStateMessage(level=next_level, ramped=True), app.config['MAIN_LIGHT_QUEUE_KEY'])
-        sse.publish({'type': 'sync light', 'value': level})
+        sse.publish({'type': 'sync light', 'value': level, 'caller': 'sync_light'})
         return jsonify({'level': level})
 
 
@@ -291,7 +292,7 @@ def next_alarm():
     nextList = sorted([x.next_alarm for x in  model.Alarm.query.all() if x.next_alarm != None])
     nextAlarm = "no alarms" if len(nextList) == 0 else nextList[0]
     result = jsonify({'alarm' : nextAlarm})
-    sse.publish({'type': 'next alarm', 'value': nextAlarm})
+    sse.publish({'type': 'next alarm', 'value': nextAlarm, 'caller': 'next_alarm'})
     return result
 
 

@@ -232,7 +232,7 @@ def delete_alarm(id):
     LOGGER.debug(f"deleting record {id}")
     if request.method == "DELETE":
         byPassStream.busy = True
-        sse.publish({type: "alarm to be deleted", "value": id, 'caller': 'delete_alarm'})
+        sse.publish({'type': "alarm to be deleted", "value": id, 'caller': 'delete_alarm'})
         alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
         if alarm == None:
             LOGGER.info(f"for ID={id}, no alarm found")

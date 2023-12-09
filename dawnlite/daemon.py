@@ -61,13 +61,14 @@ def reschedule_alarms(alarms, session=None, wasStopped=False):
     delay = datetime.timedelta(seconds=seconds)
     cutoff = now - delay
     updatedAlarms = []
+    dirty = False
     for alarm in alarms:
-        if alarm.next_alarm is not None and alarm.next_alarm < cutoff:
+        if alarm.next_alarm == None or alarm.next_alarm < cutoff:
             dirty = True
             alarm.schedule_next_alarm()
-            upccomingAlarms.append(alarm.next_alarm)
+        upccomingAlarms.append(alarm.next_alarm)
 
-        if len(upccomingAlarms) != 0:
+        if dirty:
             session.commit()
         session.close()
         return sorted(upccomingAlarms) if len(upccomingAlarms) != 0 else None
@@ -148,33 +149,33 @@ def manageRemoteQueue(state,led):
                 else:
                     newLevel = min(state.level + 10, 100)
                     state.update(next_level = newLevel, ramped = False) 
-                    call_sse({'type': 'sync light', 'value': newLevel, 'caller': 'manageRemoteQueue'})
+                    call_sse({'type': 'sync light', 'value': newLevel, 'caller': 'manageRemoteQueue-brighter'})
             elif msg == RemoteMessage.DARKER:
                 if state.level == 0:
                     pass
                 else:
                     newLevel = max(state.level - 10, 0)
                     state.update(next_level=newLevel, ramped=False)
-                    call_sse({'type': 'sync light', 'value': newLevel, 'caller': 'manageRemoteQueue'})
+                    call_sse({'type': 'sync light', 'value': newLevel, 'caller': 'manageRemoteQueue-darker'})
             elif msg == RemoteMessage.TOGGLE:
                 if state.level != 0:
                     newLevel = 0
                 else:
                     newLevel = 50
                 state.update(next_level=newLevel, ramped=True)
-                call_sse({'type': 'sync light', 'value': newLevel, 'caller': 'manageRemoteQueue'})
+                call_sse({'type': 'sync light', 'value': newLevel, 'caller': 'manageRemoteQueue-toggle'})
             elif msg == RemoteMessage.OFF:
                 state.update(next_level=0, ramped=False)
-                call_sse({'type': 'sync light', 'value': 0, 'caller': 'manageRemoteQueue'})
+                call_sse({'type': 'sync light', 'value': 0, 'caller': 'manageRemoteQueue-off'})
             elif msg == RemoteMessage.LOW:
                 state.update(next_level = 25, ramped = True)
-                call_sse({'type': 'sync light', 'value': 25, 'caller': 'manageRemoteQueue'})
+                call_sse({'type': 'sync light', 'value': 25, 'caller': 'manageRemoteQueue-low'})
             elif msg == RemoteMessage.MEDIUM:
                 state.update(next_level = 50, ramped = True)
-                call_sse({'type': 'sync light', 'value': 50, 'caller': 'manageRemoteQueue'})
+                call_sse({'type': 'sync light', 'value': 50, 'caller': 'manageRemoteQueue-medium'})
             elif msg == RemoteMessage.HIGH:
                 state.update(next_level = 100, ramped = True)
-                call_sse({'type': 'sync light', 'value': 100, 'caller': 'manageRemoteQueue'})
+                call_sse({'type': 'sync light', 'value': 100, 'caller': 'manageRemoteQueue-high'})
             elif msg == RemoteMessage.CLEARALARMTIMER:
                 if AlarmTimer != None:
                     AlarmTimer.cancel()
@@ -188,7 +189,8 @@ def manageRemoteQueue(state,led):
                 return False
             comm.set_state(app,state)
             led.setLevel(updateLevel=True)
-            # comm.publish('dawnlite', f'{{"level": {state.next_level}}}')
+            #comm.publish('dawnlite', f'{{"level": {state.next_level}}}')
+
             return state.next_level
 
 
@@ -256,11 +258,16 @@ def main():
         result = manageRemoteQueue(state,led)
         if result != None and result != last_level:
             last_level = result
+            call_sse({'caller': 'daemon after manageremote queue', 'type': 'sync light', 'value': result })
             print(f" Remote queue - new level is {result}")
+            
+            
         
         #handle the alarms
         #
         result = manageAlarmQueue(state, led)
+        if result != None:
+            print(result.keys())
         if result  == None:
             pass
         elif "level" in result.keys() and result["level"] != last_level:

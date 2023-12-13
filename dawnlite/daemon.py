@@ -68,10 +68,10 @@ def reschedule_alarms(alarms, session=None, wasStopped=False):
             alarm.schedule_next_alarm()
         upccomingAlarms.append(alarm.next_alarm)
 
-        if dirty:
-            session.commit()
-        session.close()
-        return sorted(upccomingAlarms) if len(upccomingAlarms) != 0 else None
+    if dirty:
+        session.commit()
+    session.close()
+    return sorted(upccomingAlarms) if len(upccomingAlarms) != 0 else None
 
 def find_active_alarm(alarms):
     now = datetime.datetime.now()
@@ -101,6 +101,7 @@ def manageActiveAlarm(alarms, led, state):
                 led.setLevel(updateLevel=True)
                 AlarmTimer = threading.Timer(active_alarm.alarmDuration*60, endAlarm, args=[led])
                 AlarmTimer.start()
+                call_sse({'caller' : 'manageActiveAlarm', 'type': 'sync light', 'value': state.next_level})
  
 def endAlarm(*args): # called at end of an alarm duration
     global AlarmTimer
@@ -110,6 +111,7 @@ def endAlarm(*args): # called at end of an alarm duration
         state.update(next_level = 0, active_alarm = 'none')
         comm.set_state(app, state)
         led.setLevel(updateLevel=True)
+        call_sse({'caller' : 'endalarm', 'type': 'sync light', 'value': state.next_level})
         if AlarmTimer != None:
             AlarmTimer.cancel()
             AlarmTimer = None
@@ -251,6 +253,7 @@ def main():
             alarms = session.query(Alarm).all()
             nextAlarms = reschedule_alarms(alarms, session=session)
             if nextAlarms != None:
+                call_sse({'caller': 'daemon after updating alarms', 'type': 'next alarm', 'value': nextAlarms[0].strftime("%Y-%m-%d %H:%M:%S") })
                 alarms = session.query(Alarm).all()
 
 

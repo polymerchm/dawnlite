@@ -9,6 +9,7 @@ import Alarm from './Components/Alarm'
 import Footer from './Components/Footer'
 import axios from 'axios'
 import { isEqual } from './Components/isEqual'
+import moment  from 'moment'
 
 
 
@@ -188,9 +189,15 @@ function App() {
     sse.onmessage = (e) => {
       let jsonData = JSON.parse(e.data)
       if (!isEqual(jsonData,lastMessage.current)) {
-        console.log(jsonData)
-        if (jsonData['type'] === 'sync light') {
-          dispatch({type: ACTIONS.FORCE_LIGHT_STATE, payload: jsonData['value']})
+        switch (jsonData['type']) {
+          case 'sync light':
+            dispatch({type: ACTIONS.FORCE_LIGHT_STATE, payload: jsonData['value']})
+            break;
+          case 'next alarm':
+            let time = moment(jsonData['value']).format('dddd, MMM D hh:mm a')
+            dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: time})
+          default:
+            break;
         }
       } 
       lastMessage.current = jsonData

@@ -18,9 +18,9 @@ import {
 
 
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-//import TimePicker from 'rc-time-picker';
-import 'rc-time-picker/assets/index.css';
+import  { TimePicker }  from '@mui/x-date-pickers/TimePicker';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import moment from 'moment'
 import { repeatDayData } from './repeatDays'
 import { defaultAlarm } from './getAlarms'
@@ -142,19 +142,12 @@ const AlarmListItem = ({ isList,
             <Grid container >
                     <Grid item xs={5} sx={{m: 1}}/>
                     <Grid item xs={2} p={2}>
+                    <LocalizationProvider dateAdapter={AdapterMoment}>
                         <TimePicker
-                            // disabled={isList && !modify}
-                            // showSecond={false}
-                            // use12Hours
-                            // minuteStep={1}
-                            // placeholder={'choose time'}
-                            // value={getTimeValue()}
-                            // onChange={onTimeChanged}
-                            // allowEmpty={false}
-                            // focusOnOpen={true}     
                             value={getTimeValue()}   
-                            onChange={onTimeChanged}             
+                            onAccept={onTimeChanged}  
                         />
+                        </LocalizationProvider>
                     </Grid>
                     <Grid item xs={5} />
                 </Grid>
@@ -295,13 +288,6 @@ const AlarmListItem = ({ isList,
 
     const ListItemButtons = () => {
         const Buttons = () => {
-            // let ref = useRef()
-            // useEffect(()=>{
-            //     if (modify) {
-            //         ref.current.scrollIntoView({behavior: 'smooth'})
-
-            //     }
-            // },[modify])
             return ['a', 'b'].map(function (id, index) {
                 const onclicks = modify ?
                     {

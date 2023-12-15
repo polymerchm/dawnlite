@@ -11,6 +11,7 @@ import RecycleIcon from '@mui/icons-material/Refresh'
 
 import plugged from '../assets/plugged_white.png'
 import unplugged from '../assets/unplugged_white.png'
+import moment from 'moment'
 
 
 const Header = ({level, nextAlarm, connected}) => {
@@ -25,7 +26,9 @@ const Header = ({level, nextAlarm, connected}) => {
                     </Box>
                     <Box display='flex' flexGrow={1}>
                         <Typography variant="h6" component="div" 
-                        >next alarm - {nextAlarm}</Typography>
+                        >{moment(nextAlarm).year() > 1970 ? `next alarm - ${moment(nextAlarm).format("ddd, MMM D h:mma"
+
+                        )}` : 'No Alarms Set'}</Typography>
                     </Box>
                     <Box component="img"
                             sx={{
@@ -35,14 +38,14 @@ const Header = ({level, nextAlarm, connected}) => {
                                 maxWidth: { xs: 30, md: 40 },
                                 
                             }} src={connectionImage}/>
-                    <IconButton 
+                    {/* <IconButton 
                         size="large"
                         edge="start"
                         color="inherit"
                         aria-label="refresh alarms"
                         sx={{ mr: 2 }}
                     > <RecycleIcon/>
-                    </IconButton>
+                    </IconButton> */}
                 </Toolbar>
             </AppBar>
         </div>

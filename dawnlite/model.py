@@ -8,6 +8,7 @@ LOGGER = logging.getLogger('dawnlite')
 
 
 db = flask_sqlalchemy.SQLAlchemy()
+EPOCH = datetime.datetime(1970, 1,1, 0, 0, 0)
 
 
 class Alarm(db.Model):

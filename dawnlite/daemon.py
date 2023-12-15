@@ -53,7 +53,7 @@ def shutdown(*args):
 def reschedule_alarms(alarms, session=None, wasStopped=False):  
     if session == None:
         session = Session(Alarm)
-    upccomingAlarms = []
+    upcomingAlarms = []
     dirty = False
     #TODO: try to remove the alarm post duration thingy.
     seconds = 10  if wasStopped else int(app.config['ALARM_POST_DURATION'])
@@ -63,15 +63,18 @@ def reschedule_alarms(alarms, session=None, wasStopped=False):
     updatedAlarms = []
     dirty = False
     for alarm in alarms:
-        if alarm.next_alarm == None or alarm.next_alarm < cutoff:
+        if alarm.next_alarm == model.EPOCH:
+            continue
+        elif alarm.next_alarm == None or alarm.next_alarm < cutoff:
             dirty = True
             alarm.schedule_next_alarm()
-        upccomingAlarms.append(alarm.next_alarm)
+        upcomingAlarms.append(alarm.next_alarm)
 
     if dirty:
         session.commit()
     session.close()
-    return sorted(upccomingAlarms) if len(upccomingAlarms) != 0 else None
+    upcomingAlarms = list(filter(lambda  alarm: alarm != model.EPOCH, sorted(upcomingAlarms)))
+    return upcomingAlarms if len(upcomingAlarms) != 0 else None
 
 def find_active_alarm(alarms):
     now = datetime.datetime.now()
@@ -115,9 +118,6 @@ def endAlarm(*args): # called at end of an alarm duration
         if AlarmTimer != None:
             AlarmTimer.cancel()
             AlarmTimer = None
-        
-    
-
 
 def stopAlarmAndRamp():
     comm.send_message(app, comm.ReloadAlarmsMessage(wasStopped=True), alarm_queue ) 
@@ -253,8 +253,11 @@ def main():
             alarms = session.query(Alarm).all()
             nextAlarms = reschedule_alarms(alarms, session=session)
             if nextAlarms != None:
-                call_sse({'caller': 'daemon after updating alarms', 'type': 'next alarm', 'value': nextAlarms[0].strftime("%Y-%m-%d %H:%M:%S") })
+                index = 0 if nextAlarms[0] != model.EPOCH else 1 
+                call_sse({'caller': 'daemon after updating alarms', 'type': 'next alarm', 'value': nextAlarms[index].strftime("%Y-%m-%d %H:%M:%S") })
                 alarms = session.query(Alarm).all()
+            else:
+                call_sse({'caller': 'daemon after updating alarms', 'type': 'next alarm', 'value': model.EPOCH.strftime("%Y-%m-%d %H:%M:%S") })
 
 
         # handle the remote and buttons

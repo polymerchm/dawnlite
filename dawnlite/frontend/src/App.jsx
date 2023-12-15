@@ -118,7 +118,10 @@ function reducer(state, action) {
           return item
         }
       })
-      $axios.patch('/api/alarm', toUpdate)
+      $axios.patch('/api/alarm', toUpdate, {
+        headers: {
+          'Content-Type': 'application/json'
+        }})
       .catch(err => {console.log(`ALARM_UPDATE PATCH ${err}`)})
       return {...state, alarmList: newAlarmList}
     case ACTIONS.LOADING:
@@ -150,16 +153,14 @@ function App() {
   const [busy, setBusy] = useState(false)
   const lastMessage = useRef({})
 
-
-
-  
-
   const asyncDispatch = () => {
     dispatch({ type: ACTIONS.LOADING})
-    setTimeout(()=>{}, 3000)
-    retrieveAlarmList().then(response => {
+    setTimeout(()=>{retrieveAlarmList().then(response => {
       dispatch({type: ACTIONS.INITIALIZE_ALARMS, payload: response.data})
-    })
+    })}, 1000)
+    // retrieveAlarmList().then(response => {
+    //   dispatch({type: ACTIONS.INITIALIZE_ALARMS, payload: response.data})
+    // })
   }
 
   const retrieveAlarmList = () => { // returns a promise   
@@ -167,10 +168,12 @@ function App() {
   }
 
   const asyncDispatchNextAlarm = () => {
-    //setTimeout(()=>{}, 3000)
-    retrieveNextAlarm().then(response => {
+    setTimeout(()=>{    retrieveNextAlarm().then(response => {
       dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: response.data.alarm})
-    })
+    })}, 1000)
+    // retrieveNextAlarm().then(response => {
+    //   dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: response.data.alarm})
+    // })
   }
 
   const retrieveNextAlarm = () => { // returns a promise   
@@ -182,20 +185,20 @@ function App() {
 
 
   useEffect(() => { // runs on mount 
-    
-    
+
     const sse = new EventSource('/api/stream')
 
     sse.onmessage = (e) => {
       let jsonData = JSON.parse(e.data)
+      console.log(`onmessage ${e.data}`)
       if (!isEqual(jsonData,lastMessage.current)) {
         switch (jsonData['type']) {
           case 'sync light':
             dispatch({type: ACTIONS.FORCE_LIGHT_STATE, payload: jsonData['value']})
             break;
           case 'next alarm':
-            let time = moment(jsonData['value']).format('dddd, MMM D hh:mm a')
-            dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: time})
+            // let time = moment(jsonData['value'], "").format('dddd, MMM D hh:mm a')
+            dispatch({type: ACTIONS.SET_NEXT_ALARM, payload: jsonData['value']})
           default:
             break;
         }

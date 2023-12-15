@@ -26,6 +26,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))
 
+
 def string_or_numeric(value):
     try:
         int_value = int(value)
@@ -47,7 +48,7 @@ class BetterTime(json.JSONEncoder):
     """
     def default(self, obj):
         if isinstance(obj, datetime):
-            str = obj.strftime(r"%a, %b %d, %l:%M%P")
+            str = obj.strftime(r"%Y-%m-%d %H:%M:%S")
             return str
         return super().default(obj)
 
@@ -290,7 +291,14 @@ def sync_light():
 @app.route('/api/nextAlarm', methods = ['GET'])
 def next_alarm():
     nextList = sorted([x.next_alarm for x in  model.Alarm.query.all() if x.next_alarm != None])
-    nextAlarm = "no alarms" if len(nextList) == 0 else nextList[0]
+    if len(nextList) == 0:
+        nextAlarm = "no alarms"
+    elif nextList[0] != model.EPOCH:
+        nextAlarm = nextList[0]
+    elif nextList[0] == model.EPOCH and len(nextList) > 1: 
+        nextAlarm = nextList[1]
+    else:
+        nextAlarm = "no alarms"
     result = jsonify({'alarm' : nextAlarm})
     sse.publish({'type': 'next alarm', 'value': nextAlarm, 'caller': 'next_alarm'})
     return result

@@ -18,7 +18,8 @@ import {
 
 
 import FormControlLabel from '@mui/material/FormControlLabel';
-import TimePicker from 'rc-time-picker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+//import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
 import moment from 'moment'
 import { repeatDayData } from './repeatDays'
@@ -83,6 +84,7 @@ const AlarmListItem = ({ isList,
 
     const onEnabledChange = (e) => {
         //TODO: check here to make sure this does not create an overlap of active alarms
+        setIsDirty(true)
         setWorkingAlarm({ ...workingAlarm, enabled: e.target.checked })
     }
 
@@ -98,8 +100,10 @@ const AlarmListItem = ({ isList,
     }
 
     const getTimeValue = () => {
-        return workingAlarm.time ? moment(workingAlarm.time, "hh:mm") : moment().hour(0).minute(0)
+        let result = workingAlarm.time ? moment(workingAlarm.time, "hh:mm") : moment().hour(0).minute(0)
+        return result
     }
+        
 
     const onCancel = (e) => {
         setWorkingAlarm(defaultAlarm())
@@ -139,15 +143,17 @@ const AlarmListItem = ({ isList,
                     <Grid item xs={5} sx={{m: 1}}/>
                     <Grid item xs={2} p={2}>
                         <TimePicker
-                            disabled={isList && !modify}
-                            showSecond={false}
-                            use12Hours
-                            minuteStep={1}
-                            placeholder={'choose time'}
-                            value={getTimeValue()}
-                            onChange={onTimeChanged}
-                            allowEmpty={false}
-                            focusOnOpen={true}                     
+                            // disabled={isList && !modify}
+                            // showSecond={false}
+                            // use12Hours
+                            // minuteStep={1}
+                            // placeholder={'choose time'}
+                            // value={getTimeValue()}
+                            // onChange={onTimeChanged}
+                            // allowEmpty={false}
+                            // focusOnOpen={true}     
+                            value={getTimeValue()}   
+                            onChange={onTimeChanged}             
                         />
                     </Grid>
                     <Grid item xs={5} />

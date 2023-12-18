@@ -13,9 +13,14 @@ import plugged from '../assets/plugged_white.png'
 import unplugged from '../assets/unplugged_white.png'
 import moment from 'moment'
 
+const isValidDate = (dateStr) => {
+    return !isNaN(new Date(dateStr));
+}
+
 
 const Header = ({level, nextAlarm, connected}) => {
     let connectionImage = connected ? plugged : unplugged
+    let date = isValidDate(nextAlarm) ? nextAlarm : "1970-01-01"
     return (
         <div>
             <AppBar position="static">

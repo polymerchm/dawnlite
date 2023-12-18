@@ -32,10 +32,10 @@ import WeekDayWeekEnd from './WeekDayWeekEnd';
 
 
 const AlarmListItem = ({ isList,
-    updateAlarmList,
     setCreateNewAlarmFlag,
     addAlarm,
     alarmListItem,
+    updateAlarmList,
     }) => {
     const [workingAlarm, setWorkingAlarm] = useState({...alarmListItem})
     const [modify, setModify] = useState(false)

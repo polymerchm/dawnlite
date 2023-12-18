@@ -55,7 +55,8 @@ export const ACTIONS = {
   SET_NEXT_ALARM:         "set next alarm",
   SET_BUSY_FLAG:          "set busy flag",
   PULSE:                  "set pulsee",
-  SET_CONNECTED:          "set connected"
+  SET_CONNECTED:          "set connected",
+  SET_NODAYS:             "set nodays"
 }
 
 
@@ -68,20 +69,21 @@ const initialState = {
   nextAlarm: "",
   busy: false,
   pulse: Date.now(),
-  connected: true
+  connected: true,
+  alert: {show: false, type: null, value: null}
 }
 
 const makeDate = (dateString) => {
   const parts = dateString.split("T")
-  const dateparts = parts[0].split("-")
-  const timeparts = parts[1].split(":")
-  const year = parseInt(dateparts[0])
-  const month = parseInt(dateparts[1])
-  const day = parseInt(dateparts[2])
-  const ampm = timeparts[2].slice(-2)
-  const hour = ampm === "AM" ? parseInt(timeparts[0]) : parseInt(timeparts[0]) + 12
-  const minutes = parseInt(timeparts[1])
-  const seconds = parseInt(timeparts[2].slice(0,2))
+  const dateParts = parts[0].split("-")
+  const timeParts = parts[1].split(":")
+  const year = parseInt(dateParts[0])
+  const month = parseInt(dateParts[1])
+  const day = parseInt(dateParts[2])
+  const ampm = timeParts[2].slice(-2)
+  const hour = ampm === "AM" ? parseInt(timeParts[0]) : parseInt(timeParts[0]) + 12
+  const minutes = parseInt(timeParts[1])
+  const seconds = parseInt(timeParts[2].slice(0,2))
   // returns milliseconds since epoch
   return new Date(year, month, day, hour, minutes, seconds).getTime()
 }
@@ -140,6 +142,8 @@ function reducer(state, action) {
         return {...state, pulse: pulseDate, connected: ((now - pulseDate) < 10000) }
     case ACTIONS.SET_CONNECTED:
         return {...state, connected: action.payload}
+    case ACTIONS.SET_ALERT:
+        return {...state, alert: action.payload}
     default:
       return state
   }
@@ -190,7 +194,7 @@ function App() {
 
     sse.onmessage = (e) => {
       let jsonData = JSON.parse(e.data)
-      console.log(`onmessage ${e.data}`)
+      // console.log(`onmessage ${e.data}`)
       if (!isEqual(jsonData,lastMessage.current)) {
         switch (jsonData['type']) {
           case 'sync light':
@@ -270,6 +274,7 @@ function App() {
                       listLoading={state.listLoading} 
                       dispatch={dispatch}
                       asyncDispatch={asyncDispatchNextAlarm}
+                      alert={state.alert}
                       
                                 />
             }

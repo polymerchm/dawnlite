@@ -46,18 +46,18 @@ class Alarm(db.Model):
         
 
     def repeat2string(self,bitmask):
-        out = ""
-        pointer = 1
-        days = ['Su','Mo','Tu','We','Th','Fr','Sa']
-        for i in range(0,len(days)):
-            value = days[i] if (bitmask & pointer) != 0 else '__'
-            out += value
-            pointer = pointer * 2
+        if bitmask == None:
+            out =  "______________"
+        else:
+            out = ""
+            pointer = 1
+            days = ['Su','Mo','Tu','We','Th','Fr','Sa']
+            for i in range(0,len(days)):
+                value = days[i] if (bitmask & pointer) != 0 else '__'
+                out += value
+                pointer = pointer * 2
         return out
 
-
-    def printfred(self):
-        print(f"from {self} print fredfredfred")
 
     def __repr__(self) -> str:
         day_string = self.repeat2string(self.repeat_days)
@@ -103,7 +103,7 @@ class Alarm(db.Model):
     
     @classmethod
     def update_from_dict(cls, row, data):
-        LOGGER.debug(f"the data to update with is {data}")
+        # LOGGER.debug(f"the data to update with is {data}")
         row.id = data.get('id', row.id)
         row.time = data.get('time', row.time if row.time != None else "00:00")
         row.alarmDuration = data.get('alarmDuration', row.alarmDuration)

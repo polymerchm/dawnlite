@@ -10715,3 +10715,189 @@ DEBUG      2023-12-15 14:01:48,482 mainLEDControl      -setLevel             ent
 DEBUG      2023-12-15 14:01:48,774 __init__            -get_alarms           Entering alarm GET
 DEBUG      2023-12-15 14:03:03,954 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'enabled': True, 'id': 'c63c6a9b-d49e-4512-b874-9f774f888f55', 'level': 50, 'nextAlarm': '2023-12-19T15:40:00', 'rampDuration': 3, 'repeatDays': 12, 'time': '17:45'}
 DEBUG      2023-12-15 14:03:03,957 __init__            -update_alarm         updating alarm <Alarm(id='c63c6a9b-d49e-4512-b874-9f774f888f55',time='17:45',enabled=True,repeat_days='____TuWe______',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 19, 17, 45))>
+DEBUG      2023-12-15 14:03:57,466 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'id': 'bf5ee159-90ad-42ff-b2ab-9e4233f6ad3c'}
+INFO       2023-12-15 16:13:25,711 __init__            -update_alarm         for ID=bf5ee159-90ad-42ff-b2ab-9e4233f6ad3c, no alarm found
+INFO       2023-12-15 18:24:47,342 __init__            -update_alarm         for ID=bf5ee159-90ad-42ff-b2ab-9e4233f6ad3c, no alarm found
+DEBUG      2023-12-15 20:45:27,373 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-15 20:53:12,200 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-15 20:53:20,393 __init__            -get_alarms           Entering alarm GET
+INFO       2023-12-15 20:53:48,485 daemon              -main                 starting main daemon
+INFO       2023-12-15 20:53:57,995 statusLED           -main                 starting statusLED daemon
+DEBUG      2023-12-15 20:54:03,868 remoteControl       -main                 starting remoteControl daemon
+INFO       2023-12-15 20:54:09,976 button              -main                 starting button daemon
+DEBUG      2023-12-15 20:54:14,385 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:15,729 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=50, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:15,731 rampLED             -rampLED              In rampLED - initial=0 final=50, duration=1
+DEBUG      2023-12-15 20:54:19,648 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=50, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:21,449 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=5, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:21,451 rampLED             -rampLED              In rampLED - initial=50 final=5, duration=1
+DEBUG      2023-12-15 20:54:25,201 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=5, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:25,202 rampLED             -rampLED              In rampLED - initial=5 final=100, duration=1
+DEBUG      2023-12-15 20:54:27,826 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=95, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:27,827 rampLED             -rampLED              In rampLED - initial=100 final=95, duration=1
+DEBUG      2023-12-15 20:54:30,032 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=95, next_level=75, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:30,033 rampLED             -rampLED              In rampLED - initial=95 final=75, duration=1
+DEBUG      2023-12-15 20:54:32,638 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=75, next_level=50, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:32,640 rampLED             -rampLED              In rampLED - initial=75 final=50, duration=1
+DEBUG      2023-12-15 20:54:35,503 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=35, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 20:54:35,504 rampLED             -rampLED              In rampLED - initial=50 final=35, duration=1
+DEBUG      2023-12-15 20:55:13,616 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'repeatDays': 127, 'time': '16:10', 'id': '324c5c12-3ba2-4065-a87f-d9c4a779f5b3'}
+DEBUG      2023-12-15 20:55:13,620 __init__            -add_alarm            adding alarm <Alarm(id='324c5c12-3ba2-4065-a87f-d9c4a779f5b3',time='16:10',enabled=None,repeat_days='SuMoTuWeThFrSa',alarmDuration=60,rampDuration=None,level=None,next_alarm=datetime.datetime(1970, 1, 1, 0, 0))>
+DEBUG      2023-12-15 20:55:42,738 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'repeatDays': 127, 'time': '16:10', 'id': '324c5c12-3ba2-4065-a87f-d9c4a779f5b3', 'level': 50, 'enabled': True}
+DEBUG      2023-12-15 20:55:42,741 __init__            -update_alarm         updating alarm <Alarm(id='324c5c12-3ba2-4065-a87f-d9c4a779f5b3',time='16:10',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 16, 16, 10))>
+DEBUG      2023-12-15 20:55:49,441 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 20:55:49,443 __init__            -delete_alarm         deleting record c63c6a9b-d49e-4512-b874-9f774f888f55
+DEBUG      2023-12-15 20:55:52,179 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 20:55:52,181 __init__            -delete_alarm         deleting record c63c6a9b-d49e-4512-b874-9f774f888f55
+INFO       2023-12-15 20:55:52,200 __init__            -delete_alarm         for ID=c63c6a9b-d49e-4512-b874-9f774f888f55, no alarm found
+DEBUG      2023-12-15 20:56:33,633 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 20:56:33,635 __init__            -delete_alarm         deleting record c63c6a9b-d49e-4512-b874-9f774f888f55
+INFO       2023-12-15 20:56:33,694 __init__            -delete_alarm         for ID=c63c6a9b-d49e-4512-b874-9f774f888f55, no alarm found
+DEBUG      2023-12-15 20:57:54,526 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 20:57:54,528 __init__            -delete_alarm         deleting record c63c6a9b-d49e-4512-b874-9f774f888f55
+INFO       2023-12-15 20:57:54,553 __init__            -delete_alarm         for ID=c63c6a9b-d49e-4512-b874-9f774f888f55, no alarm found
+DEBUG      2023-12-15 21:00:26,479 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 21:00:26,481 __init__            -delete_alarm         deleting record c63c6a9b-d49e-4512-b874-9f774f888f55
+INFO       2023-12-15 21:00:26,499 __init__            -delete_alarm         for ID=c63c6a9b-d49e-4512-b874-9f774f888f55, no alarm found
+DEBUG      2023-12-15 21:08:03,480 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-15 21:08:05,700 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=35, next_level=35, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 21:10:35,800 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 21:10:35,802 __init__            -delete_alarm         deleting record 324c5c12-3ba2-4065-a87f-d9c4a779f5b3
+DEBUG      2023-12-15 21:11:03,169 model               -update_from_dict     the data to update with is {'alarmDuration': 20, 'time': '15:00', 'repeatDays': 62, 'level': 75, 'id': '021d9467-2a1f-475f-af2b-f2cfdf50fea5'}
+DEBUG      2023-12-15 21:11:03,172 __init__            -add_alarm            adding alarm <Alarm(id='021d9467-2a1f-475f-af2b-f2cfdf50fea5',time='15:00',enabled=None,repeat_days='__MoTuWeThFr__',alarmDuration=20,rampDuration=None,level=None,next_alarm=datetime.datetime(1970, 1, 1, 0, 0))>
+DEBUG      2023-12-15 21:11:23,888 model               -update_from_dict     the data to update with is {'time': '10:00', 'repeatDays': 127, 'alarmDuration': 30, 'rampDuration': 3, 'level': 100, 'id': '62c948f7-5583-4c41-b5a5-53e892061793', 'enabled': True}
+DEBUG      2023-12-15 21:11:23,891 __init__            -add_alarm            adding alarm <Alarm(id='62c948f7-5583-4c41-b5a5-53e892061793',time='10:00',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=30,rampDuration=3,level=None,next_alarm=datetime.datetime(2023, 12, 16, 10, 0))>
+DEBUG      2023-12-15 21:11:42,226 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'time': '15:00', 'repeatDays': 62, 'level': 75, 'id': '021d9467-2a1f-475f-af2b-f2cfdf50fea5', 'enabled': True}
+DEBUG      2023-12-15 21:11:42,229 __init__            -update_alarm         updating alarm <Alarm(id='021d9467-2a1f-475f-af2b-f2cfdf50fea5',time='15:00',enabled=True,repeat_days='__MoTuWeThFr__',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 18, 15, 0))>
+DEBUG      2023-12-15 21:12:15,985 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 21:12:15,987 __init__            -delete_alarm         deleting record 62c948f7-5583-4c41-b5a5-53e892061793
+DEBUG      2023-12-15 21:12:47,477 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-15 21:12:47,479 __init__            -delete_alarm         deleting record 021d9467-2a1f-475f-af2b-f2cfdf50fea5
+DEBUG      2023-12-15 22:17:59,355 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=35, next_level=35, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 22:18:00,131 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-15 22:18:11,840 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=35, next_level=50, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-15 22:18:11,841 rampLED             -rampLED              In rampLED - initial=35 final=50, duration=1
+DEBUG      2023-12-15 22:18:27,687 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'id': '63a6cb7f-b26e-44cc-a00a-5d5a0a475383'}
+DEBUG      2023-12-16 18:35:48,584 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=50, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:35:48,793 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:36:01,689 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'id': '1113b5bb-3f5a-4a5a-a994-c922ad92a5ab'}
+INFO       2023-12-16 18:42:33,691 button              -main                 starting button daemon
+INFO       2023-12-16 18:42:45,168 daemon              -main                 starting main daemon
+DEBUG      2023-12-16 18:42:54,188 remoteControl       -main                 starting remoteControl daemon
+INFO       2023-12-16 18:43:10,444 statusLED           -main                 starting statusLED daemon
+DEBUG      2023-12-16 18:43:59,298 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:44:00,794 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:44:00,795 rampLED             -rampLED              In rampLED - initial=0 final=100, duration=1
+DEBUG      2023-12-16 18:46:38,303 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:46:42,738 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:53:22,007 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:53:22,853 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:54:15,472 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:54:23,932 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:55:32,117 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'id': '073a3816-106d-4077-9d3b-781b239cd22f'}
+DEBUG      2023-12-16 18:55:32,120 __init__            -add_alarm            adding alarm <Alarm(id='073a3816-106d-4077-9d3b-781b239cd22f',time='00:00',enabled=None,repeat_days='______________',alarmDuration=60,rampDuration=None,level=None,next_alarm=datetime.datetime(1970, 1, 1, 0, 0))>
+DEBUG      2023-12-16 18:55:35,198 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'id': '073a3816-106d-4077-9d3b-781b239cd22f'}
+DEBUG      2023-12-16 18:55:35,200 __init__            -add_alarm            adding alarm <Alarm(id='073a3816-106d-4077-9d3b-781b239cd22f',time='00:00',enabled=None,repeat_days='______________',alarmDuration=60,rampDuration=None,level=None,next_alarm=datetime.datetime(1970, 1, 1, 0, 0))>
+DEBUG      2023-12-16 18:56:05,710 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:56:10,309 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:56:25,312 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:56:26,491 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:57:14,977 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:57:17,176 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:57:25,168 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-16 18:57:25,169 __init__            -delete_alarm         deleting record 073a3816-106d-4077-9d3b-781b239cd22f
+DEBUG      2023-12-16 18:58:51,469 model               -update_from_dict     the data to update with is {'alarmDuration': 60, 'id': '6d5bb1ec-98df-4fe8-b9f0-6de1889b9498'}
+DEBUG      2023-12-16 18:58:51,473 __init__            -add_alarm            adding alarm <Alarm(id='6d5bb1ec-98df-4fe8-b9f0-6de1889b9498',time='00:00',enabled=None,repeat_days='______________',alarmDuration=60,rampDuration=None,level=None,next_alarm=datetime.datetime(1970, 1, 1, 0, 0))>
+DEBUG      2023-12-16 18:58:58,644 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 18:58:58,678 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 18:59:03,681 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-16 18:59:03,682 __init__            -delete_alarm         deleting record 6d5bb1ec-98df-4fe8-b9f0-6de1889b9498
+DEBUG      2023-12-16 19:00:12,173 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 19:00:12,346 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 19:01:03,884 model               -update_from_dict     the data to update with is {'time': '08:00', 'repeatDays': 8, 'alarmDuration': 20, 'rampDuration': 3, 'level': 25, 'id': 'a5cd1488-e23c-4371-8bfc-4c8b2ec1c6ac', 'enabled': True}
+DEBUG      2023-12-16 19:01:03,888 __init__            -add_alarm            adding alarm <Alarm(id='a5cd1488-e23c-4371-8bfc-4c8b2ec1c6ac',time='08:00',enabled=True,repeat_days='______We______',alarmDuration=20,rampDuration=3,level=None,next_alarm=datetime.datetime(2023, 12, 20, 8, 0))>
+DEBUG      2023-12-16 19:01:10,263 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-16 19:01:10,265 __init__            -delete_alarm         deleting record a5cd1488-e23c-4371-8bfc-4c8b2ec1c6ac
+DEBUG      2023-12-16 19:02:24,463 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 19:02:24,839 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 19:07:07,640 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 19:07:08,456 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-16 19:08:30,861 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-16 19:08:52,824 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-17 11:35:15,123 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-17 11:35:16,929 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:44:04,666 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-17 11:44:43,935 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:44:44,493 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-17 11:45:42,266 model               -update_from_dict     the data to update with is {'time': '08:00', 'repeatDays': 1, 'alarmDuration': 20, 'rampDuration': 3, 'level': 25, 'id': '982edc8b-d07d-41c6-a664-8f269d1e9131', 'enabled': True}
+DEBUG      2023-12-17 11:45:42,270 __init__            -add_alarm            adding alarm <Alarm(id='982edc8b-d07d-41c6-a664-8f269d1e9131',time='08:00',enabled=True,repeat_days='Su____________',alarmDuration=20,rampDuration=3,level=None,next_alarm=datetime.datetime(2023, 12, 24, 8, 0))>
+DEBUG      2023-12-17 11:45:51,602 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-17 11:45:51,604 __init__            -delete_alarm         deleting record 982edc8b-d07d-41c6-a664-8f269d1e9131
+DEBUG      2023-12-17 11:46:31,481 model               -update_from_dict     the data to update with is {'time': '08:00', 'repeatDays': 127, 'alarmDuration': 20, 'rampDuration': 3, 'level': 25, 'id': '9ab965e8-7d73-47a0-80f6-ad7c43d3767c', 'enabled': True}
+DEBUG      2023-12-17 11:46:31,485 __init__            -add_alarm            adding alarm <Alarm(id='9ab965e8-7d73-47a0-80f6-ad7c43d3767c',time='08:00',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=20,rampDuration=3,level=None,next_alarm=datetime.datetime(2023, 12, 18, 8, 0))>
+DEBUG      2023-12-17 11:46:50,292 __init__            -delete_alarm         method DELETE
+DEBUG      2023-12-17 11:46:50,293 __init__            -delete_alarm         deleting record 9ab965e8-7d73-47a0-80f6-ad7c43d3767c
+DEBUG      2023-12-17 11:48:00,051 model               -update_from_dict     the data to update with is {'time': '08:00', 'repeatDays': 62, 'alarmDuration': 20, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:48:00,055 __init__            -add_alarm            adding alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='08:00',enabled=True,repeat_days='__MoTuWeThFr__',alarmDuration=20,rampDuration=3,level=None,next_alarm=datetime.datetime(2023, 12, 18, 8, 0))>
+DEBUG      2023-12-17 11:48:22,650 model               -update_from_dict     the data to update with is {'time': '11:15', 'repeatDays': 62, 'alarmDuration': 60, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:48:22,657 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='11:15',enabled=True,repeat_days='__MoTuWeThFr__',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 18, 11, 15))>
+DEBUG      2023-12-17 11:48:30,426 model               -update_from_dict     the data to update with is {'time': '11:15', 'repeatDays': 65, 'alarmDuration': 60, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:48:30,429 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='11:15',enabled=True,repeat_days='Su__________Sa',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 23, 11, 15))>
+DEBUG      2023-12-17 11:48:41,210 button              -pressed              in presssed, button is <gpiozero.Button object on pin GPIO21, pull_up=None, is_active=True>
+DEBUG      2023-12-17 11:48:41,216 button              -main                 toggle light in button
+DEBUG      2023-12-17 11:48:41,224 button              -main                 on entry state=State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:48:41,664 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=100, next_level=0, active_alarm='none', alarmDuration=1200, ramped=False, rampDuration=1)
+DEBUG      2023-12-17 11:48:41,703 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:48:41,704 rampLED             -rampLED              In rampLED - initial=100 final=0, duration=1
+DEBUG      2023-12-17 11:48:44,369 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=0, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:48:49,259 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=50, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:48:49,260 rampLED             -rampLED              In rampLED - initial=0 final=50, duration=1
+DEBUG      2023-12-17 11:48:51,748 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=5, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:48:51,749 rampLED             -rampLED              In rampLED - initial=50 final=5, duration=1
+DEBUG      2023-12-17 11:49:21,562 model               -update_from_dict     the data to update with is {'time': '11:15', 'repeatDays': 127, 'alarmDuration': 60, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:49:21,566 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='11:15',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 18, 11, 15))>
+DEBUG      2023-12-17 11:49:45,827 model               -update_from_dict     the data to update with is {'time': '11:55', 'repeatDays': 127, 'alarmDuration': 60, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:49:45,831 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='11:55',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 17, 11, 55))>
+DEBUG      2023-12-17 11:49:50,724 button              -pressed              in presssed, button is <gpiozero.Button object on pin GPIO21, pull_up=None, is_active=True>
+DEBUG      2023-12-17 11:49:50,730 button              -main                 toggle light in button
+DEBUG      2023-12-17 11:49:50,735 button              -main                 on entry state=State(defaultLevel=100, level=5, next_level=5, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:49:50,741 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=5, next_level=5, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:49:50,761 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=5, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:49:50,765 rampLED             -rampLED              In rampLED - initial=5 final=0, duration=1
+DEBUG      2023-12-17 11:49:53,469 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=0, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:55:02,085 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=50, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:55:02,086 rampLED             -rampLED              In rampLED - initial=0 final=50, duration=1
+DEBUG      2023-12-17 11:55:44,456 button              -pressed              in presssed, button is <gpiozero.Button object on pin GPIO21, pull_up=None, is_active=True>
+DEBUG      2023-12-17 11:55:44,456 button              -main                 toggle light in button
+DEBUG      2023-12-17 11:55:44,460 button              -main                 on entry state=State(defaultLevel=100, level=50, next_level=50, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:55:45,212 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=50, next_level=0, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=False, rampDuration=1)
+DEBUG      2023-12-17 11:55:45,227 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=0, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:55:45,228 rampLED             -rampLED              In rampLED - initial=50 final=0, duration=1
+DEBUG      2023-12-17 11:55:47,617 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=0, next_level=0, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:56:35,005 model               -update_from_dict     the data to update with is {'time': '12:55', 'repeatDays': 127, 'alarmDuration': 60, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:56:35,007 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='12:55',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 17, 12, 55))>
+DEBUG      2023-12-17 11:56:57,579 model               -update_from_dict     the data to update with is {'time': '12:00', 'repeatDays': 127, 'alarmDuration': 60, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:56:57,582 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='12:00',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=60,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 17, 12, 0))>
+DEBUG      2023-12-17 11:57:09,668 model               -update_from_dict     the data to update with is {'time': '12:00', 'repeatDays': 127, 'alarmDuration': 2, 'rampDuration': 3, 'level': 25, 'id': '8c22df2a-500e-47eb-8beb-e7a6ebc07898', 'enabled': True}
+DEBUG      2023-12-17 11:57:09,671 __init__            -update_alarm         updating alarm <Alarm(id='8c22df2a-500e-47eb-8beb-e7a6ebc07898',time='12:00',enabled=True,repeat_days='SuMoTuWeThFrSa',alarmDuration=2,rampDuration=3,level=50,next_alarm=datetime.datetime(2023, 12, 17, 12, 0))>
+DEBUG      2023-12-17 11:58:15,914 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:58:15,915 rampLED             -rampLED              In rampLED - initial=0 final=100, duration=1
+DEBUG      2023-12-17 11:58:18,420 __init__            -get_alarms           Entering alarm GET
+DEBUG      2023-12-17 11:58:29,323 button              -pressed              in presssed, button is <gpiozero.Button object on pin GPIO21, pull_up=None, is_active=True>
+DEBUG      2023-12-17 11:58:29,329 button              -main                 toggle light in button
+DEBUG      2023-12-17 11:58:29,333 button              -main                 on entry state=State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:58:29,338 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=100, next_level=100, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:58:29,354 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 11:58:29,355 rampLED             -rampLED              In rampLED - initial=100 final=0, duration=1
+DEBUG      2023-12-17 11:58:32,485 daemon              -manageRemoteQueue    receved valid remote message, state is State(defaultLevel=100, level=0, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 12:00:01,420 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=50, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 12:00:01,421 rampLED             -rampLED              In rampLED - initial=0 final=50, duration=1
+DEBUG      2023-12-17 12:00:47,882 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=50, next_level=90, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 12:00:47,883 rampLED             -rampLED              In rampLED - initial=50 final=90, duration=1
+DEBUG      2023-12-17 12:01:03,329 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=90, next_level=5, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 12:01:03,333 rampLED             -rampLED              In rampLED - initial=90 final=5, duration=1
+DEBUG      2023-12-17 12:01:07,277 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=5, next_level=100, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 12:01:07,278 rampLED             -rampLED              In rampLED - initial=5 final=100, duration=1
+DEBUG      2023-12-17 12:01:11,006 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=100, next_level=0, active_alarm='8c22df2a-500e-47eb-8beb-e7a6ebc07898', alarmDuration=1200, ramped=True, rampDuration=1)
+DEBUG      2023-12-17 12:01:11,008 rampLED             -rampLED              In rampLED - initial=100 final=0, duration=1
+DEBUG      2023-12-17 12:02:02,604 mainLEDControl      -setLevel             entered setLevel with state = State(defaultLevel=100, level=0, next_level=0, active_alarm='none', alarmDuration=1200, ramped=True, rampDuration=1)

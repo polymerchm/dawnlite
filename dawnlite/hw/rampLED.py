@@ -15,7 +15,7 @@ LOGGER = logging.getLogger('dawnlite')
 # if set to a negative number during a a ramp (by another process), it halts the ramp.
 
 def rampLED(pwm, initialLevel=-1, finalLevel=-1, duration=app.config['RAMP_DURATION']):
-    LOGGER.debug(f"In rampLED - initial={initialLevel} final={finalLevel}, duration={duration}")
+    # LOGGER.debug(f"In rampLED - initial={initialLevel} final={finalLevel}, duration={duration}")
     # ramp up or down the LED intensity
     rampSteps = app.config['RAMP_STEPS']
     state = comm.get_state(app)

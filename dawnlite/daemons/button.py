@@ -25,11 +25,11 @@ def main():
     comm.set_ramping(app, 0.0) # set ramping flag to non-ramping
 
     def pressed(button):
-        LOGGER.debug(f'in presssed, button is {button}')
+        # LOGGER.debug(f'in presssed, button is {button}')
         button.state = 1
 
     def when_held(button):
-        LOGGER.debug(f'in when_held, button is {button}')
+        # LOGGER.debug(f'in when_held, button is {button}')
         button.state = 2
 
     dim = Button(app.config['DIM_BUTTON'],None, True)
@@ -48,20 +48,20 @@ def main():
 
     
     led = MainLED()
-    LOGGER.info("starting button daemon")
+    # LOGGER.info("starting button daemon")
 
     while True:
         if  toggle.state == 1:
             # led controlled from here, so just update the state
             # toggle the light
-            LOGGER.debug("toggle light in button")
+            # LOGGER.debug("toggle light in button")
             rampFlag = comm.get_ramping(app)
             if  rampFlag != 0.0: #if ramping set signal to stop it
                 comm.set_ramping(app,-1.0)
                 time.sleep(2*rampFlag) # wait out an extra cycle of hte ramp loop
                 comm.set_ramping(app,0.0) # set flag to non-ramping
             state = comm.get_state(app)
-            LOGGER.debug(f"on entry state={state}")
+            # LOGGER.debug(f"on entry state={state}")
             
             if state.level != 0:
                 # state.level = 50
@@ -77,14 +77,14 @@ def main():
             sendRemoteMessage(RemoteMessage.CLEARALARMTIMER)
             toggle.resetState()
         elif toggle.state == 2:
-            LOGGER.debug("wants to reset")
+            # LOGGER.debug("wants to reset")
             toggle.resetState()
         elif dim.state == 1:
-            LOGGER.debug("call for dimmer light")
+            # LOGGER.debug("call for dimmer light")
             sendRemoteMessage(RemoteMessage.DARKER)
             dim.resetState()
         elif dim.state == 2:
-            LOGGER.debug(" call for light off")
+            # LOGGER.debug(" call for light off")
             state = comm.get_state(app)
             state.next_level = 0
             state.ramped = False
@@ -92,11 +92,11 @@ def main():
             led.setLevel(updateLevel=True)
             dim.resetState()
         elif bright.state == 1:
-            LOGGER.debug("call for brighter")
+            # LOGGER.debug("call for brighter")
             sendRemoteMessage(RemoteMessage.BRIGHTER)
             bright.resetState()
         elif bright.state == 2:
-            LOGGER.debug(" call for light full")
+            # LOGGER.debug(" call for light full")
             state = comm.get_state(app)
             state.next_level = 100
             state.ramped = False

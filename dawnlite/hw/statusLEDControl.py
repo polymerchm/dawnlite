@@ -86,7 +86,7 @@ class StatusLED(Thread):
 
     def pulseTrain(self):
         if self.dutyCycle == 0 or self.duration == 0:
-            print(f"dutyCycle={self.dutyCycle} or duration={self.duration} invalid")
+            # print(f"dutyCycle={self.dutyCycle} or duration={self.duration} invalid")
             sys.exit(1)
         self.offTime = self.duration*(1-self.dutyCycle)
         self.onTime = self.duration*self.dutyCycle

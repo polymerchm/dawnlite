@@ -17,15 +17,24 @@ import { ACTIONS } from '../App'
 
 
 
-const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
+const Alarm = ({alarmList, listLoading, dispatch, alert, asyncDispatch}) => {
 
     
     const [createNewAlarmFlag, setCreateNewAlarmFlag] = useState(false)
     const [workingAlarm, setWorkingAlarm] = useState({}) // working alarmObject for entry
-    const [overlapTime, setOverlapTime] = useState("")
     const [invalidEntryOpen, setInvalidEntryOpen] = useState(false)
 
-    const testOverlapTime = (alarm, modifying=false) => {
+    const isInvalidAlarmEntry = (alarm, modifying=false) => {
+
+        // first check for missing days
+
+        if (alarm.repeatDays === undefined || alarm.repeatDays === 0) {
+            dispatch({type: ACTIONS.SET_ALERT, payload: {show: true, type: 'nodays', value: null}})
+            return true
+        }
+
+        // check to see alarm overlaps with any other
+        
         const alarmStart = moment(alarm.time, "HH:mm")  // seconds since epoch
         const alarmEnd = moment(alarmStart).add(alarm.alarmDuration, 'minutes')
         const alarmRepeatDays = alarm.repeatDays
@@ -56,7 +65,7 @@ const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
             let endsInside = alarmEnd.isBetween(entryStart, entryEnd, null, '(]')
             let encloses = alarmStart.isBefore(entryStart)  && alarmEnd.isAfter(entryEnd)
             if ( startsInside || endsInside || encloses) {
-                setOverlapTime(entry.time)
+                dispatch({type: ACTIONS.SET_ALERT, payload: {show: true, type: 'overlap', value: entry.time}})
                 return true  // there is an overlap
             }
         }
@@ -68,9 +77,7 @@ const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
         // test here for an overlapping alarm
         // if valid, add it
         //if not, put up a warning and ignore
-        if (testOverlapTime(newAlarm)) {
-            setInvalidEntryOpen(true)
-        } else {
+        if (!isInvalidAlarmEntry(newAlarm)) {
             dispatch({type: ACTIONS.ALARM_ADD, payload: newAlarm})
             asyncDispatch()
             setWorkingAlarm({})
@@ -87,8 +94,7 @@ const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
             dispatch({type: ACTIONS.ALARM_DELETE, payload: alarmID})
         } else { // update
             // check to see if the changes don;t cause a conflict
-            if (testOverlapTime(targetAlarm, true)) {
-                setInvalidEntryOpen(true)
+            if (isInvalidAlarmEntry(targetAlarm, true)) {
                 isOkay= false
             } else {
                 dispatch({type: ACTIONS.ALARM_UPDATE, payload: targetAlarm})
@@ -124,7 +130,7 @@ const Alarm = ({alarmList, listLoading, dispatch, asyncDispatch}) => {
             {listLoading ? <h4>Alarms Loading.....</h4> :
             <AlarmList alarmList={alarmList} updateAlarmList={updateAlarmList}/> }
 
-            <InvalidAlarmEntry open={invalidEntryOpen} setOpen={setInvalidEntryOpen} overlapTime={overlapTime}/>
+            <InvalidAlarmEntry alert={alert} dispatch={dispatch}/>
             <h1>  </h1>
             
         </Stack>

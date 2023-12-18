@@ -89,7 +89,7 @@ class WiFi:
 
 def send_message(app, message, queue_key):
     global last_message, last_message_time
-    # LOGGER.debug(f"send_message msg={message}, queue={queue_key}")
+    # # LOGGER.debug(f"send_message msg={message}, queue={queue_key}")
     now = datetime.datetime.now()
     # supress a repeat message sooner than the cutoff
     if message == last_message and (now - last_message_time).total_seconds() < int(app.config['REMOTE_REPEAT_DELAY']):
@@ -110,7 +110,7 @@ def receive_message(queue_key, timeout=1):
     return msg
 
 def set_state(app, state):
-    # LOGGER.debug(f"in set_state state={state}")
+    # # LOGGER.debug(f"in set_state state={state}")
     state.defaultLevel = 100 if app.config['LED_TYPE'] == "common_anode" else 0
     data = jsonpickle.encode(state)
     redis_cli.set(app.config['STATE_KEY'], data)
@@ -125,7 +125,7 @@ def get_state(app):
         set_state(app,state)
     else:
         state = jsonpickle.decode(data)
-    # LOGGER.debug(f"in get_state state={state}")
+    # # LOGGER.debug(f"in get_state state={state}")
     return state
 
 def set_command(obj,key):
@@ -175,4 +175,5 @@ def publish(channel, message, pickle=False):
 
 
 if __name__=='__main__':
-    LOGGER.debug("starting comm")
+    # LOGGER.debug("starting comm")
+    pass

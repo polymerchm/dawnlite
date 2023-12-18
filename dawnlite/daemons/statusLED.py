@@ -63,7 +63,7 @@ def main():
     statusLED = LED.StatusLED(PWM)
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
-    LOGGER.info("starting statusLED daemon")
+    # LOGGER.info("starting statusLED daemon")
     while True:
         if commandQueue.empty():
             continue

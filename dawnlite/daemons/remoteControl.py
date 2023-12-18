@@ -55,7 +55,7 @@ class IRW():
             return words[2].decode('utf-8'), int(words[1])
         except: 
             # too many signals, warn the user then pause
-            LOGGER.debug("buffer oveload in remote")
+            # LOGGER.debug("buffer oveload in remote")
             # comm.publish('status_led', STATUS.PULSE_6)
             time.sleep(5)
             return -1, -1
@@ -76,7 +76,7 @@ def main():
 
     statusLed = StatusLEDControl.StatusLED(app.config['STATUS_LED_PWM'])
     statusLed.setParameters(duration=0.05, level=100)
-    LOGGER.debug("starting remoteControl daemon")
+    # LOGGER.debug("starting remoteControl daemon")
 
 
     while True:

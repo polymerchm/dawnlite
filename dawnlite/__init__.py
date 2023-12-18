@@ -169,7 +169,7 @@ def stream():
 
 @app.route('/api/alarms', methods=['GET'])
 def get_alarms():
-    LOGGER.debug("Entering alarm GET")
+    # # LOGGER.debug("Entering alarm GET")
     alarms = model.Alarm.query.all()
     response = jsonify([alarm.to_dict() for alarm in alarms])
     return response
@@ -181,7 +181,7 @@ def add_alarm():
     alarm = model.Alarm()
     model.Alarm.update_from_dict(alarm,request.json)
     alarm.schedule_next_alarm()
-    LOGGER.debug(f"adding alarm {alarm}")
+    # # LOGGER.debug(f"adding alarm {alarm}")
     model.db.session.add(alarm)
     model.db.session.commit()
     comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
@@ -195,7 +195,7 @@ def add_alarm():
 def get_alarm(id):
     alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
     if alarm == None:
-        LOGGER.info(f"for ID={id}, no alarm found")
+        # LOGGER.info(f"for ID={id}, no alarm found")
         abort(404)
     response = jsonify(alarm.to_dict())
     return response
@@ -210,11 +210,11 @@ def update_alarm():
         id = value.get('id')
         alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
         if alarm is None:
-            LOGGER.info(f"for ID={id}, no alarm found")
+            # LOGGER.info(f"for ID={id}, no alarm found")
             abort(404) 
         model.Alarm.update_from_dict(alarm, value)
         alarm.schedule_next_alarm()
-        LOGGER.debug(f"updating alarm {alarm}")
+        # LOGGER.debug(f"updating alarm {alarm}")
         model.db.session.commit()
         comm.send_message(app,comm.ReloadAlarmsMessage(), alarm_queue)
         response = jsonify(alarm.to_dict())
@@ -229,14 +229,14 @@ def update_alarm():
 
 @app.route('/api/alarm/<id>', methods=['DELETE'])
 def delete_alarm(id):
-    LOGGER.debug(f"method {request.method}")
-    LOGGER.debug(f"deleting record {id}")
+    # LOGGER.debug(f"method {request.method}")
+    # LOGGER.debug(f"deleting record {id}")
     if request.method == "DELETE":
         byPassStream.busy = True
         sse.publish({'type': "alarm to be deleted", "value": id, 'caller': 'delete_alarm'})
         alarm = model.Alarm.query.filter(model.Alarm.id == id).first()
         if alarm == None:
-            LOGGER.info(f"for ID={id}, no alarm found")
+            # LOGGER.info(f"for ID={id}, no alarm found")
             abort(404)
         model.db.session.delete(alarm)
         model.db.session.commit()
@@ -256,7 +256,7 @@ def get_light():
 @app.route('/api/light', methods = ['POST'])
 def patch_light():
     if request.method == 'POST':
-        # LOGGER.debug(f" data = {request.json}")
+        # # LOGGER.debug(f" data = {request.json}")
         state = comm.get_state(app)
         if request.json == {}:
            LOGGER.error(f"request is empty")
@@ -307,7 +307,7 @@ def next_alarm():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
-    LOGGER.debug(f"path is {path}")
+    # LOGGER.debug(f"path is {path}")
     return render_template("index.html")
 
 

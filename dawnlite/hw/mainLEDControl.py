@@ -60,8 +60,8 @@ class MainLED():
     def setLevel(self, updateLevel=False):
         # get the current level
         state = comm.get_state(app)
-        print(" in setlevel", state)
-        LOGGER.debug(f"entered setLevel with state = {state}")
+        # print(" in setlevel", state)
+        # LOGGER.debug(f"entered setLevel with state = {state}")
         if state == None:
             LOGGER.error("state not initialized")
             return

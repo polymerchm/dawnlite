@@ -139,7 +139,7 @@ def manageRemoteQueue(state,led):
     if msg == None:
         return None
     else:
-        LOGGER.debug(f"receved valid remote message, state is {state}")
+        # LOGGER.debug(f"receved valid remote message, state is {state}")
         if isinstance(msg, RemoteMessage):
             # cancel the alarm if one is in progress.
             stopAlarmAndRamp()
@@ -239,7 +239,7 @@ def main():
 
     led = MainLED()
 
-    LOGGER.info("starting main daemon")
+    # LOGGER.info("starting main daemon")
     state = comm.get_state(app)
     comm.set_ramping(app, 0.0) # set ramping flag to non-ramping
     last_alarm_refresh = datetime.datetime(1970,1,1)
@@ -265,7 +265,7 @@ def main():
         if result != None and result != last_level:
             last_level = result
             call_sse({'caller': 'daemon after manageremote queue', 'type': 'sync light', 'value': result })
-            print(f" Remote queue - new level is {result}")
+            # print(f" Remote queue - new level is {result}")
             
             
         
@@ -273,21 +273,21 @@ def main():
         #
         result = manageAlarmQueue(state, led)
         if result != None:
-            print(result.keys())
+            # print(result.keys())
         if result  == None:
             pass
         elif "level" in result.keys() and result["level"] != last_level:
-            print(f"Alarm Queue - new level is {result}")
+            # print(f"Alarm Queue - new level is {result}")
             last_level = result["level"]
         elif "next_alarm" in result.keys() and last_alarm != result['next_alarm']:
-            print(f"AlarmQueue - next alarm to go off {result}")
+            # print(f"AlarmQueue - next alarm to go off {result}")
             last_alarm = result["next_alarm"]
         
         #handle light messages 
         #
         result = manageLightQueue(state, led)
         if result != None:
-            print(f"Light Queue  - new level is {result}")
+            # print(f"Light Queue  - new level is {result}")
 
         #  check/react to the alarms.
         #
@@ -295,7 +295,7 @@ def main():
         result = reschedule_alarms(alarms)
         if result != None and result != last_alarm:
             last_alarm = result
-            print(f"ActiveAlarm - next alarm is {result}")
+            # print(f"ActiveAlarm - next alarm is {result}")
 
 if __name__ == '__main__':
     main()
